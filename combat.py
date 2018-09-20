@@ -41,9 +41,14 @@ class Combat(cmd.Cmd):
 
     # Displays the interface: All Enemies and user status
     def display(self):
+        self.clear()
         self.user.show()
         for enemy in self.enemies:
             print(enemy.show())
+
+    # Clears the terminal by adding new lines
+    def clear(self, no_of_lines = 40):
+        print('\n' * no_of_lines)
 
     # Attacks a chosen enemy
     def do_atk(self, arg):
