@@ -59,6 +59,7 @@ class Monster:
                 total += '\n' + self.line('bot')
                 return total
 
+    # Sets life state and changes name accordingly
     def update_data(self):
         if self.hp <= 0:
             self.alive = False
