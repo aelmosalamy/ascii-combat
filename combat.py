@@ -4,8 +4,13 @@ import cmd
 
 class Combat(cmd.Cmd):
     intro = input('You started a fight, Enemies are staring viciously at you!\n\n')
-    prompt_sign = '$'
-    prompt = prompt_sign + ' Type <atk> to attack:\n> '
+    prompt_sign = '#'
+    prompt = prompt_sign + 'Type <atk> to attack:\n> '
+    strings = {
+        'win': 'VICTORY, You demolished all enemies!',
+        'syntax_error': 'Oops! I dont understand',
+        'unknown_enemy': "I can't see an enemy with such name!"
+    }
     file = None
 
     def __init__(self, user, enemies):
@@ -15,9 +20,20 @@ class Combat(cmd.Cmd):
         self.no_of_enemies = len(enemies)
         self.enemies_dict = self.create_dictionary()
 
-    # Overriding Cmd.emptyline to avoid repitition of last command
+    # cmd.Cmd method overriding
+    # Avoids repitition of last command
     def emptyline(self):
         pass
+
+    # Error message for unknown commands
+    def default(self, line):
+        print('{}{} <{}>'.format(self.prompt_sign, self.strings['syntax_error'], line))
+
+    # Controls termination of Combat
+    def postcmd(self, stop, line):
+        if not self.enemies_alive():
+            input(self.prompt_sign + self.strings['win'])
+            return True
 
     # Pre/Post Loop functions
     def preloop(self):
@@ -26,22 +42,24 @@ class Combat(cmd.Cmd):
     # Creates a dictionary that store Enemies and their corresponding names
     def create_dictionary(self):
         dict = {}
-        for i in range(self.no_of_enemies):
-            dict[self.enemies[i].name.lower()] = self.enemies[i]
+        for enemy in self.enemies:
+            if enemy.alive:
+                dict[enemy.name.lower()] = enemy
         return dict
 
-    # Returns a string of enemy names
-    def list_enemy_names(self):
+    # Returns a string of alive enemy names
+    def alive_enemy_names(self):
         names = ''
         for enemy in self.enemies:
             if enemy.alive:
-                names += '  - %s\n' % enemy.name
+                names += '  + {}\n'.format(enemy.name)
             else:
                 pass
         return names
 
-    # Checks if all enemies are alive
+    # Are any enemy alive? True/False
     def enemies_alive(self):
+        self.no_of_enemies = len(self.enemies)
         for enemy in self.enemies:
             if not enemy.alive:
                 self.no_of_enemies -= 1
@@ -59,13 +77,9 @@ class Combat(cmd.Cmd):
     def display(self, clear = True):
         if clear:
             self.clear()
-            self.user.show()
-            for enemy in self.enemies:
-                print(enemy.show())
-        else:
-            self.user.show()
-            for enemy in self.enemies:
-                print(enemy.show())
+        self.user.show()
+        for enemy in self.enemies:
+            print(enemy.show())     
 
     # Clears the terminal by adding new lines
     def clear(self, no_of_lines = 40):
@@ -76,13 +90,13 @@ class Combat(cmd.Cmd):
         """Attacks a specific enemy: atk <enemy name>"""
         self.display()
         while True:
-            choice = input(self.prompt_sign + ' Type <enemy name>:\n' + self.list_enemy_names() + '> ')
+            choice = input(self.prompt_sign + 'Type <enemy name>:\n' + self.alive_enemy_names() + '> ')
+            self.enemies_dict = self.create_dictionary()
             try:
                 target_enemy = self.enemies_dict[choice.lower()]
                 self.user.attack(target_enemy)
                 self.display()
-                break
+                return True
             except KeyError:
-                input(self.prompt_sign + " I can't see an enemy with such name!")
+                input(self.prompt_sign + self.strings['unknown_enemy'])
                 self.display()
-        #self.user.attack(enemies_dict[int(arg)])

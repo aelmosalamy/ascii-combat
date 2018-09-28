@@ -6,7 +6,7 @@ def main():
     me = Player('My Player', 10, 2)
     enemies = []
     for i in range(3):
-        mon = Monster('Spider %s' % i, 2, 1)
+        mon = Monster('Spider %s' % (i+1), 2, 1)
         enemies.append(mon)
 
     game = Combat(me, enemies)
