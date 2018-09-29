@@ -6,8 +6,8 @@ def main():
     me = Player('My Player', 10, 2)
     enemies = []
     for i in range(3):
-        mon = Monster('Spider %s' % (i+1), 2, 1)
-        enemies.append(mon)
+        m = Monster('Spider %s' % (i+1), 2, 1)
+        enemies.append(m)
 
     game = Combat(me, enemies)
     game.cmdloop()
