@@ -1,11 +1,18 @@
+'''
+Core class for the combat system, used to instantiate a Monster objects
+with ability to attack other Monster objects, contains lots of crappy code
+to print the monsters
+'''
+
 class Monster:
-    def __init__(self, name, hp, dmg, atk_msg='You got hit'):
+    # Action is printed
+    def __init__(self, name, hp, dmg, action='hit'):
         self.name = name
         self.max_hp = hp
         self.hp = hp
         self.dmg = dmg
+        self.action = action
         self.alive = True
-        self.atk_msg = atk_msg + ' (-' + str(self.dmg) + ')'
         self.length = 0
 
     def line(self, shape):
@@ -20,6 +27,7 @@ class Monster:
 
     def attack(self, enemy):
         enemy.hp -= self.dmg
+        enemy.update_data()
 
     # Returns a multi-line string of the stats
     def show(self, size='min'):

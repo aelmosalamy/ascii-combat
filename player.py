@@ -5,7 +5,6 @@ class Player(Monster):
     def __init__(self, name, hp, dmg):
         super().__init__(name, hp, dmg)
         self.enemies = []
-        self.quote = 'I am SUPER healthy.'
         self.max_power = 3
         self.special_power = 3
 
