@@ -3,7 +3,7 @@ import cmd
 
 
 class Combat(cmd.Cmd):
-    strings = {
+    STRINGS = {
     'intro': 'You started a fight, Enemies are staring viciously at you!',
     'win': 'VICTORY, You defeated all enemies!',
     'syntax_error': 'Oops! I dont understand',
@@ -12,11 +12,10 @@ class Combat(cmd.Cmd):
     'enemy_death': "died",
     'prompt': 'Type <atk> to attack:',
     }
-
-    intro = input(strings['intro'] + '\n')
-    list_symbol = '*'
-    prompt_sign = '#'
-    prompt = '{}{}\n'.format(prompt_sign, strings['prompt'])
+    LIST_SYMBOL = '*'
+    PROMPT_SIGN = '#'
+    intro = input(STRINGS['intro'] + '\n')
+    prompt = '{}{}\n'.format(PROMPT_SIGN, STRINGS['prompt'])
 
     file = None
 
@@ -36,12 +35,12 @@ class Combat(cmd.Cmd):
 
     # Error message for unknown commands
     def default(self, line):
-        print('{}{} <{}>'.format(self.prompt_sign, self.strings['syntax_error'], line))
+        print('{}{} <{}>'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line))
 
     # Controls termination of Combat
     def postcmd(self, stop, line):
         if not self.enemies_alive():
-            input(self.prompt_sign + self.strings['win'])
+            input(self.PROMPT_SIGN + self.STRINGS['win'])
             return True
 
     # Pre/Post Loop functions
@@ -61,7 +60,7 @@ class Combat(cmd.Cmd):
         names = ''
         for enemy in self.enemies:
             if enemy.alive:
-                names += '  {} {}\n'.format(self.list_symbol, enemy.name)
+                names += '  {} {}\n'.format(self.LIST_SYMBOL, enemy.name)
             else:
                 pass
         return names
@@ -79,9 +78,9 @@ class Combat(cmd.Cmd):
 
     # Attacks a chosen enemy
     def user_attack(self, enemy):
-        self.user_attack_msg = "{}{} {}".format(self.prompt_sign, self.strings['player_attack'], enemy.name)
+        self.user_attack_msg = "{}{} {}".format(self.PROMPT_SIGN, self.STRINGS['player_attack'], enemy.name)
         if (enemy.hp - self.user.dmg) <= 0:
-            self.user_attack_msg += "\n#{} {}".format(enemy.name, self.strings['enemy_death'])
+            self.user_attack_msg += "\n#{} {}".format(enemy.name, self.STRINGS['enemy_death'])
         self.user.attack(enemy)
     
     # All alive enemies attacks the user returning a hit string
@@ -113,7 +112,7 @@ class Combat(cmd.Cmd):
         """Attacks a specific enemy: atk <enemy name>"""
         self.display()
         while True:
-            choice = input(self.prompt_sign + 'Type <enemy name>:\n' + self.alive_enemy_names() + '> ')
+            choice = input(self.PROMPT_SIGN + 'Type <enemy name>:\n' + self.alive_enemy_names() + '> ')
             self.enemies_dict = self.create_dictionary()
             try:
                 target_enemy = self.enemies_dict[choice.lower()]
@@ -122,5 +121,5 @@ class Combat(cmd.Cmd):
                 self.display()
                 return True
             except KeyError:
-                input(self.prompt_sign + self.strings['unknown_enemy'])
+                input(self.PROMPT_SIGN + self.STRINGS['unknown_enemy'])
                 self.display()

@@ -1,7 +1,7 @@
 '''
-Core class for the combat system, used to instantiate a Monster objects
+Core class for the combat system, used to instantiate a Monster object
 with ability to attack other Monster objects, contains lots of crappy code
-to print the monsters
+to show the monsters
 '''
 
 class Monster:
