@@ -1,4 +1,5 @@
 from monster import Monster
+import colorama as C
 import cmd
 
 
