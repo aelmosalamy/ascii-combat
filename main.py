@@ -1,15 +1,15 @@
 from player import Player
-from combat import *
+import combat
 
 
 def main():
     me = Player('My Player', 10, 2)
     enemies = []
     for i in range(3):
-        m = Monster('Spider %s' % (i+1), 2, 1)
+        m = combat.Monster('Spider %s' % (i+1), 3, 3)
         enemies.append(m)
 
-    game = Combat(me, enemies)
+    game = combat.Combat(me, enemies)
     game.cmdloop()
 
 

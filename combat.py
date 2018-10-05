@@ -54,7 +54,7 @@ class Combat(cmd.Cmd):
 
     # Pre/Post Loop functions
     def preloop(self):
-        self.display(False)
+        self.display()
 
     # Creates a dictionary that store Enemies and their corresponding names
     def create_dictionary(self):
