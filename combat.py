@@ -13,15 +13,23 @@ class Combat(cmd.Cmd):
     'enemy_death': "died",
     'prompt': 'Type <atk> to attack:',
     }
+
+    # Color settings
+    C.init()
+    print(C.Style.BRIGHT)
+
+    # Global constants
     LIST_SYMBOL = '*'
     PROMPT_SIGN = '#'
-    intro = input(STRINGS['intro'] + '\n')
-    prompt = '{}{}\n'.format(PROMPT_SIGN, STRINGS['prompt'])
 
-    file = None
 
     def __init__(self, user, enemies):
+        # cmd.Cmd initialization
         super().__init__()
+        self.intro = input(self.STRINGS['intro'] + '\n')
+        self.prompt = '{}{}\n'.format(self.PROMPT_SIGN, self.STRINGS['prompt'])
+
+        # user/enemies variables
         self.user = user
         self.user_attack_msg = ''
         self.enemies = enemies
