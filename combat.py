@@ -5,8 +5,9 @@ import cmd
 
 class Combat(cmd.Cmd):
     STRINGS = {
-    'intro': 'You started a fight, Enemies are staring viciously at you!',
-    'win': 'VICTORY, You defeated all enemies!',
+    'intro': 'You started a fight, Enemies are staring viciously at you!\n. . .',
+    'win': 'VICTORY, You defeated all enemies!. . .',
+    'lose': 'DEFEAT, You got beaten by enemies!\n. . .',
     'syntax_error': 'Oops! I dont understand',
     'unknown_enemy': "I can't see an enemy with such name!",
     'player_attack': "You punched",
@@ -16,7 +17,7 @@ class Combat(cmd.Cmd):
 
     # Color settings
     C.init()
-    print(C.Style.BRIGHT)
+    print(C.Fore.WHITE + C.Back.BLACK + C.Style.BRIGHT, end='')
 
     # Global constants
     LIST_SYMBOL = '*'
@@ -40,15 +41,19 @@ class Combat(cmd.Cmd):
     # cmd.Cmd method overriding
     # Avoids repitition of last command
     def emptyline(self):
+        self.display()
         pass
 
     # Error message for unknown commands
     def default(self, line):
-        print('{}{} <{}>'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line))
+        self.display()
+        print(C.Back.RED + C.Fore.RED + '{}{} <{}>'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line))
+        print(C.Back.BLACK + C.Fore.WHITE, end='')
 
-    # Controls termination of Combat
+    # Controls termination of Combat, win/lose msg
     def postcmd(self, stop, line):
         if not self.enemies_alive():
+            print(C.Back.GREEN + C.Fore.GREEN , end='')
             input(self.PROMPT_SIGN + self.STRINGS['win'])
             return True
 
@@ -87,9 +92,9 @@ class Combat(cmd.Cmd):
 
     # Attacks a chosen enemy
     def user_attack(self, enemy):
-        self.user_attack_msg = "{}{} {}".format(self.PROMPT_SIGN, self.STRINGS['player_attack'], enemy.name)
+        self.user_attack_msg = C.Back.BLACK + C.Fore.YELLOW + "{}{} {}".format(self.PROMPT_SIGN, self.STRINGS['player_attack'], enemy.name)
         if (enemy.hp - self.user.dmg) <= 0:
-            self.user_attack_msg += "\n#{} {}".format(enemy.name, self.STRINGS['enemy_death'])
+            self.user_attack_msg += C.Back.BLACK + C.Fore.RED + "\n#{} {}".format(enemy.name, self.STRINGS['enemy_death'])
         self.user.attack(enemy)
     
     # All alive enemies attacks the user returning a hit string
@@ -100,21 +105,23 @@ class Combat(cmd.Cmd):
                 enemy.attack(self.user)
                 hit_string = "!! {} {} you. ({}HP)\n".format(enemy.name, enemy.action, str(-enemy.dmg))
                 messages += hit_string
-        self.enemies_attack_msg = messages
+        self.enemies_attack_msg = C.Back.BLACK + C.Fore.RED + messages
         
     # Displays the interface: All Enemies and user status
     def display(self, clear = True):
         if clear:
             self.clear()
+        print(C.Back.BLACK + C.Fore.WHITE)
         self.user.show()
         for enemy in self.enemies:
             print(enemy.show())
         print(self.user_attack_msg) 
         print(self.enemies_attack_msg)
+        print(C.Back.BLACK + C.Fore.WHITE)
          
     # Clears the terminal by adding new lines
     def clear(self, no_of_lines = 40):
-        print('\n' * no_of_lines)
+        print(C.Back.BLACK + '\n' * no_of_lines)
 
     # Cmd commands
     def do_atk(self, arg):
@@ -130,5 +137,6 @@ class Combat(cmd.Cmd):
                 self.display()
                 return True
             except KeyError:
+                print(C.Back.RED + C.Fore.RED, end='')
                 input(self.PROMPT_SIGN + self.STRINGS['unknown_enemy'])
                 self.display()
