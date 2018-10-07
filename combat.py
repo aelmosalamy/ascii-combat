@@ -4,14 +4,16 @@ import cmd, platform, os
 
 class Combat(cmd.Cmd):
     STRINGS = {
-    'intro': 'You started a fight, Enemies are staring viciously at you!\n. . .',
-    'win': 'VICTORY, You defeated all enemies!. . .',
-    'lose': 'DEFEAT, You got beaten by enemies!\n. . .',
+    'intro': 'You started a fight, Enemies are staring viciously at you!\nPress Enter to start . . .',
+    'win': 'VICTORY, You defeated all enemies!\nPress Enter to Exit . . .',
+    'lose': 'DEFEAT, You got beaten by enemies!\nPress Enter to Exit . . .',
     'syntax_error': 'Oops! I dont understand',
     'unknown_enemy': "I can't see an enemy with such name!",
     'player_attack': "You punched",
     'enemy_death': "died",
-    'prompt': 'Type <atk> to attack:',
+    'user_death': "You can't fight no longer",
+    'prompt': 'Type <atk> to attack:\n> ',
+    'enemy_choice_prompt': 'Type <enemy name>:\n',
     }
 
     # Color settings
@@ -20,14 +22,14 @@ class Combat(cmd.Cmd):
 
     # Global constants
     LIST_SYMBOL = '*'
-    PROMPT_SIGN = '#'
+    PROMPT_SIGN = '# '
 
 
     def __init__(self, user, enemies):
         # cmd.Cmd initialization
         super().__init__()
-        self.intro = input(self.STRINGS['intro'] + '\n')
-        self.prompt = '{}{}\n'.format(self.PROMPT_SIGN, self.STRINGS['prompt'])
+        self.intro = input(self.STRINGS['intro'])
+        self.prompt = '{}{}'.format(self.PROMPT_SIGN, self.STRINGS['prompt'])
 
         # user/enemies variables
         self.user = user
@@ -54,6 +56,10 @@ class Combat(cmd.Cmd):
         if not self.enemies_alive():
             print(C.Back.GREEN + C.Fore.GREEN , end='')
             input(self.PROMPT_SIGN + self.STRINGS['win'])
+            return True
+        elif self.enemies_alive() and not self.user.alive:
+            print(C.Back.RED + C.Fore.RED, end='')
+            input(self.PROMPT_SIGN + self.STRINGS['lose'])
             return True
 
     # Pre/Post Loop functions
@@ -91,49 +97,58 @@ class Combat(cmd.Cmd):
 
     # Attacks a chosen enemy
     def user_attack(self, enemy):
-        self.user_attack_msg = C.Back.BLACK + C.Fore.YELLOW + "{}{} {}".format(self.PROMPT_SIGN, self.STRINGS['player_attack'], enemy.name)
+        self.user_attack_msg = "{}{}{} {} for -{}HP".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.BLUE, self.PROMPT_SIGN,
+        self.STRINGS['player_attack'], enemy.name, self.user.dmg)
         if (enemy.hp - self.user.dmg) <= 0:
-            self.user_attack_msg += C.Back.BLACK + C.Fore.RED + "\n#{} {}".format(enemy.name, self.STRINGS['enemy_death'])
+            # Message if enemy is dead
+            self.user_attack_msg += "\n{}#{} {}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, enemy.name, self.STRINGS['enemy_death'])
         self.user.attack(enemy)
     
-    # All alive enemies attacks the user returning a hit string
+    # All alive enemies attacks the user and returns a hit string
     def enemies_attack(self):
-        messages = ''
+        messages = C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED
         for enemy in self.enemies:
             if enemy.alive:
                 enemy.attack(self.user)
-                hit_string = "!! {} {} you. ({}HP)\n".format(enemy.name, enemy.action, str(-enemy.dmg))
+                hit_string = "!! {} {} you for -{}HP\n".format(enemy.name, enemy.action, str(enemy.dmg))
                 messages += hit_string
-        self.enemies_attack_msg = C.Back.BLACK + C.Fore.RED + messages
+        messages += C.Style.BRIGHT + C.Back.BLUE + C.Fore.BLUE
+        if self.user.hp <= 0:
+            messages += self.PROMPT_SIGN + self.STRINGS['user_death']
+        else:
+            messages += '{}You got {}/{} HP left'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp)
+        self.enemies_attack_msg = messages
         
     # Displays the interface: All Enemies and user status
     def display(self, clear = True):
         if clear:
             self.clear()
-        print(C.Back.BLACK + C.Fore.WHITE)
+        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE)
         self.user.show()
         for enemy in self.enemies:
-            print(enemy.show())
+            if enemy.alive:
+                print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED + enemy.show())
+            else:
+                print(C.Style.DIM + C.Back.BLACK + C.Fore.RED + enemy.show())
         print(self.user_attack_msg) 
         print(self.enemies_attack_msg)
-        print(C.Back.BLACK + C.Fore.WHITE)
+        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE)
          
     # Clears the terminal using the approperiate subshell command
     # for each terminal
     def clear(self, no_of_lines = 40):
+        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE, end='')
         if platform.system() == 'Windows':
             os.system('cls')
         elif platform.system() == 'Linux' or 'Darwin':
             os.system('clear')
-
-        print(C.Back.BLACK + '\n' * no_of_lines)
 
     # Cmd commands
     def do_atk(self, arg):
         """Attacks a specific enemy: atk <enemy name>"""
         self.display()
         while True:
-            choice = input(self.PROMPT_SIGN + 'Type <enemy name>:\n' + self.alive_enemy_names() + '> ')
+            choice = input(self.PROMPT_SIGN + self.STRINGS['enemy_choice_prompt'] + self.alive_enemy_names() + '> ')
             self.enemies_dict = self.create_dictionary()
             try:
                 target_enemy = self.enemies_dict[choice.lower()]

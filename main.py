@@ -5,8 +5,8 @@ import combat
 def main():
     me = Player('My Player', 10, 2)
     enemies = []
-    for i in range(2):
-        m = combat.Monster('Spider %s' % (i+1), 2, 1)
+    for i in range(3):
+        m = combat.Monster('Spider %s' % (i+1), 3, 1)
         enemies.append(m)
 
     game = combat.Combat(me, enemies)
@@ -14,6 +14,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main()  
 
-    
