@@ -1,7 +1,6 @@
 from monster import Monster
 import colorama as C
-import cmd
-
+import cmd, platform, os
 
 class Combat(cmd.Cmd):
     STRINGS = {
@@ -119,8 +118,14 @@ class Combat(cmd.Cmd):
         print(self.enemies_attack_msg)
         print(C.Back.BLACK + C.Fore.WHITE)
          
-    # Clears the terminal by adding new lines
+    # Clears the terminal using the approperiate subshell command
+    # for each terminal
     def clear(self, no_of_lines = 40):
+        if platform.system() == 'Windows':
+            os.system('cls')
+        elif platform.system() == 'Linux' or 'Darwin':
+            os.system('clear')
+
         print(C.Back.BLACK + '\n' * no_of_lines)
 
     # Cmd commands
