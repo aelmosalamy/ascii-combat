@@ -1,6 +1,5 @@
 from monster import Monster
 
-
 class Player(Monster):
     def __init__(self, name, hp, dmg):
         super().__init__(name, hp, dmg)

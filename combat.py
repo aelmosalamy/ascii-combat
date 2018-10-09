@@ -1,27 +1,32 @@
+'''
+Instantiate this to create a Combat 'scene' containing a player and enemies
+both must be given, run the Combat.cmdloop() to start the scene
+'''
 from monster import Monster
 import colorama as C
 import cmd, platform, os
 
 class Combat(cmd.Cmd):
     STRINGS = {
-    'intro': 'You started a fight, Enemies are staring viciously at you!\nPress Enter to start . . .',
-    'win': 'VICTORY, You defeated all enemies!\nPress Enter to Exit . . .',
-    'lose': 'DEFEAT, You got beaten by enemies!\nPress Enter to Exit . . .',
-    'syntax_error': 'Oops! I dont understand',
+    'intro'        : 'You started a fight, Enemies are staring viciously at you!\nPress Enter to start . . .',
+    'win'          : 'VICTORY, You defeated all enemies!\nPress Enter to Exit . . .',
+    'lose'         : 'DEFEAT, You got beaten by enemies!\nPress Enter to Exit . . .',
+    'syntax_error' : 'Oops! I dont understand',
     'unknown_enemy': "I can't see an enemy with such name!",
     'player_attack': "You punched",
-    'enemy_death': "died",
-    'user_death': "You can't fight no longer",
-    'prompt': 'Type <atk> to attack:\n> ',
-    'enemy_choice_prompt': 'Type <enemy name>:\n',
+    'enemy_death'  : "You eliminated",
+    'user_death'   : "You bled too much.. Aww!",
+    'prompt'       : 'Type <atk> to attack:\n> ',
+    'enemy_choice' : 'Type <enemy name>:\n',
     }
 
     # Color settings
-    C.init()
+    if platform.system() == 'Windows':
+        C.init()
     print(C.Fore.WHITE + C.Back.BLACK + C.Style.BRIGHT, end='')
 
     # Global constants
-    LIST_SYMBOL = '*'
+    LIST_SYMBOL = '*  '
     PROMPT_SIGN = '# '
 
 
@@ -78,7 +83,7 @@ class Combat(cmd.Cmd):
         names = ''
         for enemy in self.enemies:
             if enemy.alive:
-                names += '  {} {}\n'.format(self.LIST_SYMBOL, enemy.name)
+                names += '{} {}\n'.format(self.LIST_SYMBOL, enemy.name)
             else:
                 pass
         return names
@@ -100,7 +105,8 @@ class Combat(cmd.Cmd):
         self.STRINGS['player_attack'], enemy.name, self.user.dmg)
         if (enemy.hp - self.user.dmg) <= 0:
             # Message if enemy is dead
-            self.user_attack_msg += "\n{}#{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, enemy.name, self.STRINGS['enemy_death'], C.Back.BLACK)
+            self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
+            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
         self.user.attack(enemy)
     
     # All alive enemies attacks the user and returns a hit string
@@ -147,7 +153,7 @@ class Combat(cmd.Cmd):
         """Attacks a specific enemy: atk <enemy name>"""
         self.display()
         while True:
-            choice = input(self.PROMPT_SIGN + self.STRINGS['enemy_choice_prompt'] + self.alive_enemy_names() + '> ')
+            choice = input(self.PROMPT_SIGN + self.STRINGS['enemy_choice'] + self.alive_enemy_names() + '> ')
             self.enemies_dict = self.create_dictionary()
             try:
                 target_enemy = self.enemies_dict[choice.lower()]

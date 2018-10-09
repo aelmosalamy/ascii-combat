@@ -6,7 +6,7 @@ to show the monsters
 
 class Monster:
     # Action is printed
-    def __init__(self, name, hp, dmg, action='hit'):
+    def __init__(self, name, hp, dmg, action='hit', ):
         self.name = name
         self.max_hp = hp
         self.hp = hp
@@ -38,7 +38,7 @@ class Monster:
                 n = '|' + self.name
                 total += self.line('top') + '\n'
                 total += n + ((self.length - len(n)) * ' ') + ' |\n'
-                n = '|'+'HP:'+'#' * self.hp
+                n = '|'+'HP:'+ str(1 * self.hp)
                 total += n + ((self.length - len(n)) * ' ') + ' |\n'
                 n = '|'+'DMG:'+ str(self.dmg)
                 total += n + ((self.length - len(n)) * ' ') + ' |'
@@ -53,7 +53,7 @@ class Monster:
                 return total
         elif size == 'min':
             if self.alive:
-                n = '|' + self.name + ' |HP: ' + '#' * self.hp + ' |DMG: ' + str(self.dmg)
+                n = '|' + self.name + ' |HP: ' + str(1 * self.hp) + ' |DMG: ' + str(self.dmg)
                 self.length = len(n)
                 total += self.line('top') + '\n'
                 total += n +((self.length - len(n)) * ' ') + ' |'
