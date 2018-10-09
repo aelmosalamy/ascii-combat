@@ -1,6 +1,9 @@
 from player import Player
 import combat
+import os
 
+os.system('mode con: cols=70 lines=30')
+os.system('title ASCII Combat')
 
 def main():
     me = Player('My Player', 10, 2)

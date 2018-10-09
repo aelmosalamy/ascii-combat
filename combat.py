@@ -30,7 +30,6 @@ class Combat(cmd.Cmd):
         super().__init__()
         self.intro = input(self.STRINGS['intro'])
         self.prompt = '{}{}'.format(self.PROMPT_SIGN, self.STRINGS['prompt'])
-
         # user/enemies variables
         self.user = user
         self.user_attack_msg = ''
@@ -48,18 +47,18 @@ class Combat(cmd.Cmd):
     # Error message for unknown commands
     def default(self, line):
         self.display()
-        print(C.Back.RED + C.Fore.RED + '{}{} <{}>'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line))
+        print(C.Back.RED + C.Fore.RED + '{}{} <{}>{}'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line, C.Back.BLACK))
         print(C.Back.BLACK + C.Fore.WHITE, end='')
 
     # Controls termination of Combat, win/lose msg
     def postcmd(self, stop, line):
         if not self.enemies_alive():
-            print(C.Back.GREEN + C.Fore.GREEN , end='')
-            input(self.PROMPT_SIGN + self.STRINGS['win'])
+            print(C.Back.GREEN + C.Fore.GREEN + self.PROMPT_SIGN + self.STRINGS['win'] + C.Back.BLACK, end='')
+            input()
             return True
         elif self.enemies_alive() and not self.user.alive:
-            print(C.Back.RED + C.Fore.RED, end='')
-            input(self.PROMPT_SIGN + self.STRINGS['lose'])
+            print(C.Back.RED + C.Fore.RED + self.PROMPT_SIGN + self.STRINGS['lose'] + C.Back.BLACK, end='')
+            input()
             return True
 
     # Pre/Post Loop functions
@@ -97,11 +96,11 @@ class Combat(cmd.Cmd):
 
     # Attacks a chosen enemy
     def user_attack(self, enemy):
-        self.user_attack_msg = "{}{}{} {} for -{}HP".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.BLUE, self.PROMPT_SIGN,
+        self.user_attack_msg = "{}{}{} {} for -{}HP".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.CYAN, self.PROMPT_SIGN,
         self.STRINGS['player_attack'], enemy.name, self.user.dmg)
         if (enemy.hp - self.user.dmg) <= 0:
             # Message if enemy is dead
-            self.user_attack_msg += "\n{}#{} {}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, enemy.name, self.STRINGS['enemy_death'])
+            self.user_attack_msg += "\n{}#{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, enemy.name, self.STRINGS['enemy_death'], C.Back.BLACK)
         self.user.attack(enemy)
     
     # All alive enemies attacks the user and returns a hit string
@@ -112,11 +111,11 @@ class Combat(cmd.Cmd):
                 enemy.attack(self.user)
                 hit_string = "!! {} {} you for -{}HP\n".format(enemy.name, enemy.action, str(enemy.dmg))
                 messages += hit_string
-        messages += C.Style.BRIGHT + C.Back.BLUE + C.Fore.BLUE
+        messages += C.Style.BRIGHT + C.Back.CYAN + C.Fore.CYAN
         if self.user.hp <= 0:
-            messages += self.PROMPT_SIGN + self.STRINGS['user_death']
+            messages += self.PROMPT_SIGN + self.STRINGS['user_death'] + C.Back.BLACK
         else:
-            messages += '{}You got {}/{} HP left'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp)
+            messages += '{}You got {}/{} HP left{}'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp, C.Back.BLACK)
         self.enemies_attack_msg = messages
         
     # Displays the interface: All Enemies and user status
