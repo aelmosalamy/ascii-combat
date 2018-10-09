@@ -8,7 +8,7 @@ A simple CLI text adventure game, created for learning purposes.
 
 ### Usage instructions
 * This game is based on the "cmd.py" module, which comes as part of the Python Standard Library.
-* To try the game, download the .zip file, extract it and run "launcher.bat" - which basically sets terminal color and title before running "main.py" -, keep in mind this - can I call it a game? - isn't complete and is currently under development.
+* To try the game, download the .zip file, extract it and run "launcher.bat" - which basically sets terminal color and title before running "main.py", keep in mind this - should I call it a game? - isn't complete and is currently under development.
 
 ### Pull Requests
 * Feel free to send PRs (Check open issues first).
