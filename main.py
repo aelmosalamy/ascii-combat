@@ -1,6 +1,5 @@
-from player import Player
-import combat
 from ac_dicts import *
+import combat
 import os, platform
 
 # Configuring CMD's window
@@ -12,13 +11,11 @@ elif platform.system() == 'Linux' or 'Darwin':
     os.system('resize -s 30 60')
 
 def main():
-    me = Player('My Player', 10, 2)
+    me = Player('Player', 10, WEAPONS['sword'])
     enemies = []
-    for i in range(1):
-        m = give_monster('wolf')
+    for i in range(2):
+        m = give_monster('spbag')
         enemies.append(m)
-    enemies.append(give_monster('scorpion'))
-    enemies.append(give_monster('bear'))
 
     game = combat.Combat(me, enemies)
     game.cmdloop()

@@ -73,9 +73,14 @@ class Monster:
             self.alive = False
 
         if not self.alive:
-            if not self.name.lower().startswith('dead'):
-                self.name = 'Dead %s' % self.name
-
+            if not self.name.startswith('Dead'):
+                # Checks if enemy got variated name and replaces it for 'Dead'
+                if len(self.name.split(' ')) < 2:
+                    self.name = 'Dead %s' % self.name
+                else:
+                    no_variation = self.name.split(' ', 1)
+                    self.name = no_variation[1]
+                    self.name = '{} {}'.format('Dead', self.name)              
         if self.max_hp + 4 > len(self.name) + 1:
             self.length = self.max_hp + 4
         else:

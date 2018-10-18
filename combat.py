@@ -3,6 +3,7 @@ Instantiate this to create a Combat 'scene' containing a player and enemies
 both must be given, run the Combat.cmdloop() to start the scene
 '''
 from monster import Monster
+from ac_dicts import *
 import colorama as C
 import cmd, platform, os
 
@@ -12,31 +13,34 @@ class Combat(cmd.Cmd):
     'win'          : 'VICTORY, You defeated all enemies!\nPress Enter to Exit . . .',
     'lose'         : 'DEFEAT, You got beaten by enemies!\nPress Enter to Exit . . .',
     'syntax_error' : 'Oops! I dont understand',
-    'unknown_enemy': "I can't see an enemy with such name!",
-    'player_attack': "You punched",
+    'unknown_enemy': "I can't see that enemy!",
     'enemy_death'  : "You eliminated",
-    'user_death'   : "You bled too much.. Aww!",
+    'user_death'   : "You bled too much.. Argh!",
+    'full_hp'      : "You are perfectly healthy!",
     'prompt'       : 'Type <atk> to attack:\n> ',
-    'enemy_choice' : 'Type <enemy name>:\n',
+    'prompt2'      : 'Type <atk> or <skl>:\n> ',
+    'atk_choice'   : 'Attack .. Choose enemy number:\n',
+    'skl_choice'   : 'Skill  .. Choose enemy number:\n',
+    'no_skl'       : 'Argh, not enough power to use your skill!'
     }
 
-    # Color settings
-    if platform.system() == 'Windows':
-        C.init()
-    print(C.Fore.WHITE + C.Back.BLACK + C.Style.BRIGHT, end='')
-
     # Global constants
-    LIST_SYMBOL = '*  '
+    LIST_SYMBOL = '  *'
     PROMPT_SIGN = '# '
 
 
     def __init__(self, user, enemies):
         # cmd.Cmd initialization
         super().__init__()
+        # Color settings
+        if platform.system() == 'Windows':
+            C.init()
+        print(C.Fore.WHITE + C.Back.BLACK + C.Style.BRIGHT, end='')
         self.intro = input(self.STRINGS['intro'])
         self.prompt = '{}{}'.format(self.PROMPT_SIGN, self.STRINGS['prompt'])
         # user/enemies variables
         self.user = user
+        self.STRINGS['player_attack'] = 'You ' + self.user.weapon_verb
         self.user_attack_msg = ''
         self.enemies = enemies
         self.no_of_enemies = len(enemies)
@@ -65,27 +69,34 @@ class Combat(cmd.Cmd):
             print(C.Back.RED + C.Fore.RED + self.PROMPT_SIGN + self.STRINGS['lose'] + C.Back.BLACK, end='')
             input()
             return True
+        if self.user.skill == self.user.max_skill:
+            self.prompt = self.PROMPT_SIGN + self.STRINGS['prompt2']
+        else: 
+            self.prompt = self.PROMPT_SIGN + self.STRINGS['prompt']
 
     # Pre/Post Loop functions
     def preloop(self):
         self.display()
 
+    # ENEMIES, PLAYER, COMBAT STUFF
     # Creates a dictionary that store Enemies and their corresponding names
     def create_dictionary(self):
         dict = {}
+        counter = 1
         for enemy in self.enemies:
             if enemy.alive:
-                dict[enemy.name.lower()] = enemy
+                dict[str(counter)] = enemy
+                counter += 1
         return dict
 
     # Returns a string of alive enemy names
     def alive_enemy_names(self):
         names = ''
+        counter = 1
         for enemy in self.enemies:
             if enemy.alive:
-                names += '{} {}\n'.format(self.LIST_SYMBOL, enemy.name)
-            else:
-                pass
+                names += '  {}| {}\n'.format(counter, enemy.name)
+                counter += 1
         return names
 
     # Are any enemy alive? True/False
@@ -101,29 +112,45 @@ class Combat(cmd.Cmd):
 
     # Attacks a chosen enemy
     def user_attack(self, enemy):
-        self.user_attack_msg = "{}{}{} {} for -{}HP".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.CYAN, self.PROMPT_SIGN,
+        self.user_attack_msg = "{}{}{} {} (-{}HP)".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.CYAN, self.PROMPT_SIGN,
         self.STRINGS['player_attack'], enemy.name, self.user.dmg)
         if (enemy.hp - self.user.dmg) <= 0:
             # Message if enemy is dead
             self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
             self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
         self.user.attack(enemy)
-    
+
     # All alive enemies attacks the user and returns a hit string
     def enemies_attack(self):
         messages = C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED
         for enemy in self.enemies:
             if enemy.alive:
-                enemy.attack(self.user)
-                hit_string = "!! {} {} you for -{}HP\n".format(enemy.name, enemy.action, str(enemy.dmg))
+                if enemy.dmg == 0:
+                    hit_string = ''
+                else:
+                    enemy.attack(self.user)
+                    hit_string = "!! {} {} you (-{}HP)\n".format(enemy.name, enemy.action, str(enemy.dmg))
                 messages += hit_string
         messages += C.Style.BRIGHT + C.Back.CYAN + C.Fore.CYAN
         if self.user.hp <= 0:
             messages += self.PROMPT_SIGN + self.STRINGS['user_death'] + C.Back.BLACK
+        elif self.user.hp == 10:
+            messages += self.PROMPT_SIGN + self.STRINGS['full_hp'] + C.Back.BLACK
         else:
             messages += '{}You got {}/{} HP left{}'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp, C.Back.BLACK)
         self.enemies_attack_msg = messages
-        
+
+    # SKILLS IMPLEMENTATION
+    def skill_double_trouble(self, enemy):
+        self.user_attack_msg = (C.Style.BRIGHT + C.Back.BLACK + C.Fore.MAGENTA +
+        "{}SKILL: DOUBLE TROUBLE >>>\n{} {} {} (-{}HP)".format(self.PROMPT_SIGN, self.STRINGS['player_attack'], enemy.name, 'twice in quick succession', self.user.dmg * 2))
+        if (enemy.hp - self.user.dmg * 2) <= 0:
+            # Message if enemy is dead
+            self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
+            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
+        self.user.double_trouble(enemy)
+
+    # UTILITY FUNCTIONS   
     # Displays the interface: All Enemies and user status
     def display(self, clear = True):
         if clear:
@@ -148,16 +175,16 @@ class Combat(cmd.Cmd):
         elif platform.system() == 'Linux' or 'Darwin':
             os.system('clear')
 
-    # Cmd commands
-    def do_atk(self, arg):
-        """Attacks a specific enemy: atk <enemy name>"""
+    # A loop that executes any given function on an enemy
+    # whenever a valid input is entered
+    def demand_and_execute(self, function, _prompt=STRINGS['atk_choice']):
         self.display()
         while True:
-            choice = input(self.PROMPT_SIGN + self.STRINGS['enemy_choice'] + self.alive_enemy_names() + '> ')
+            choice = input(self.PROMPT_SIGN + _prompt + self.alive_enemy_names() + '> ')
             self.enemies_dict = self.create_dictionary()
             try:
                 target_enemy = self.enemies_dict[choice.lower()]
-                self.user_attack(target_enemy)
+                function(target_enemy)
                 self.enemies_attack()
                 self.display()
                 return True
@@ -165,3 +192,19 @@ class Combat(cmd.Cmd):
                 print(C.Back.RED + C.Fore.RED, end='')
                 input(self.PROMPT_SIGN + self.STRINGS['unknown_enemy'])
                 self.display()
+                    
+    # USER INPUT AND COMMANDS
+    # Cmd commands
+    def do_atk(self, arg):
+        """Attacks a specific enemy, type <atk>"""
+        self.demand_and_execute(self.user_attack)
+
+    def do_skl(self, arg):
+        """Unleashs special power using up all power points, type <skl>"""
+        if self.user.skill == self.user.max_skill:
+            self.demand_and_execute(self.skill_double_trouble, self.STRINGS['skl_choice'])
+        else:
+            self.display()
+            print(C.Back.RED + C.Fore.RED + 
+            self.PROMPT_SIGN + self.STRINGS['no_skl'] +
+            C.Back.BLACK + C.Fore.WHITE)
