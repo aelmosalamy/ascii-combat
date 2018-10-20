@@ -18,10 +18,11 @@ class Combat(cmd.Cmd):
     'user_death'   : "You bled too much.. Argh!",
     'full_hp'      : "You are perfectly healthy!",
     'prompt'       : 'Type <atk> to attack:\n> ',
-    'prompt2'      : 'Type <atk> or <skl>:\n> ',
+    'prompt_skl'   : 'Type <atk> or <skl>:\n> ',
     'atk_choice'   : 'Attack .. Choose enemy number:\n',
     'skl_choice'   : 'Skill  .. Choose enemy number:\n',
-    'no_skl'       : 'Argh, not enough power to use your skill!'
+    'no_skl'       : "Oops! It seems like you haven't acquired a skill yet!",
+    'no_pwr'       : 'Argh! not enough power to use your skill!',
     }
 
     # Global constants
@@ -61,6 +62,7 @@ class Combat(cmd.Cmd):
 
     # Controls termination of Combat, win/lose msg
     def postcmd(self, stop, line):
+        # Checks win condition
         if not self.enemies_alive():
             print(C.Back.GREEN + C.Fore.GREEN + self.PROMPT_SIGN + self.STRINGS['win'] + C.Back.BLACK, end='')
             input()
@@ -69,8 +71,9 @@ class Combat(cmd.Cmd):
             print(C.Back.RED + C.Fore.RED + self.PROMPT_SIGN + self.STRINGS['lose'] + C.Back.BLACK, end='')
             input()
             return True
+        # Changes prompt if Skill is available to use
         if self.user.skill == self.user.max_skill:
-            self.prompt = self.PROMPT_SIGN + self.STRINGS['prompt2']
+            self.prompt = self.PROMPT_SIGN + self.STRINGS['prompt_skl']
         else: 
             self.prompt = self.PROMPT_SIGN + self.STRINGS['prompt']
 
@@ -120,6 +123,18 @@ class Combat(cmd.Cmd):
             self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
         self.user.attack(enemy)
 
+    # Attacks enemy using the player's current skill
+    def user_skill(self, enemies, multitarget = False):
+        my_skill = self.user.skill_type
+        self.user_attack_msg = (C.Style.BRIGHT + C.Back.BLACK + C.Fore.MAGENTA +
+        "{}SKILL: {} >>>\n{} {} {} (-{}HP)".format(self.PROMPT_SIGN, my_skill['name'], self.STRINGS['player_attack'],
+        enemies.name, my_skill['message'], my_skill['dmg']))
+        if (enemies.hp - my_skill['dmg']) <= 0:
+            # Message if enemy is dead
+            self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
+            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemies.name, C.Back.BLACK)
+        my_skill['function'](self.user, enemies)
+
     # All alive enemies attacks the user and returns a hit string
     def enemies_attack(self):
         messages = C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED
@@ -140,15 +155,6 @@ class Combat(cmd.Cmd):
             messages += '{}You got {}/{} HP left{}'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp, C.Back.BLACK)
         self.enemies_attack_msg = messages
 
-    # SKILLS IMPLEMENTATION
-    def skill_double_trouble(self, enemy):
-        self.user_attack_msg = (C.Style.BRIGHT + C.Back.BLACK + C.Fore.MAGENTA +
-        "{}SKILL: DOUBLE TROUBLE >>>\n{} {} {} (-{}HP)".format(self.PROMPT_SIGN, self.STRINGS['player_attack'], enemy.name, 'twice in quick succession', self.user.dmg * 2))
-        if (enemy.hp - self.user.dmg * 2) <= 0:
-            # Message if enemy is dead
-            self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
-            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
-        self.user.double_trouble(enemy)
 
     # UTILITY FUNCTIONS   
     # Displays the interface: All Enemies and user status
@@ -174,6 +180,12 @@ class Combat(cmd.Cmd):
             os.system('cls')
         elif platform.system() == 'Linux' or 'Darwin':
             os.system('clear')
+    
+    def error_msg(self, text):
+        self.display()
+        print(C.Back.RED + C.Fore.RED + 
+        self.PROMPT_SIGN + text +
+        C.Back.BLACK + C.Fore.WHITE)
 
     # A loop that executes any given function on an enemy
     # whenever a valid input is entered
@@ -201,10 +213,11 @@ class Combat(cmd.Cmd):
 
     def do_skl(self, arg):
         """Unleashs special power using up all power points, type <skl>"""
-        if self.user.skill == self.user.max_skill:
-            self.demand_and_execute(self.skill_double_trouble, self.STRINGS['skl_choice'])
+        if self.user.skill_type == None:
+            self.error_msg(self.STRINGS['no_skl'])
         else:
-            self.display()
-            print(C.Back.RED + C.Fore.RED + 
-            self.PROMPT_SIGN + self.STRINGS['no_skl'] +
-            C.Back.BLACK + C.Fore.WHITE)
+            if self.user.skill == self.user.max_skill:
+                self.demand_and_execute(self.user_skill, self.STRINGS['skl_choice'])
+                self.user.skill = 0
+            else:
+                self.error_msg(self.STRINGS['no_pwr'])

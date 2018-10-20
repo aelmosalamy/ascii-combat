@@ -5,6 +5,8 @@ from monster import Monster
 from player import Player
 from random import choice
 
+net_dmg = 1
+
 # DATA DICTIONARIES
 MONSTER_VARIATION = ['Ruthless', 'Ferocious', 'Demonic',
                      'Brutal', 'Bloody', 'Violent', 'Wild', 'Spooky',
@@ -18,6 +20,7 @@ with a "dash (-)"
 '''
 MONSTER_SPECIES = {
     #Specie         |  NAME  | HP |  DMG  |  ACTION |
+    'chicken':      ['Chicken', 1, 1,      'pinched'],
     'archer':       ['Archer', 1, 2,          'shot'],
     'spider':       ['Spider', 2, 1,           'hit'],
     'scorpion':     ['Scorpion', 1, 3,       'stung'],
@@ -27,8 +30,8 @@ MONSTER_SPECIES = {
     'alligator':    ['Alligator', 3, 3,       'bite'],
     'bear':         ['Bear', 4, 2,      'slashed at'],
     'ogre':         ['Ogre', 5, 3,         'slammed'],
-    'pbag':         ['Punching-Bag', 20, 0,       ''],
-    'spbag':        ['Super-Punching-Bag', 50, 0, ''],
+    'pbag':         ['Punching-Bag', 10, 0,       ''],
+    'spbag':        ['Super-Punching-Bag', 999, 0, ''],
 }
 
 '''
@@ -42,8 +45,17 @@ WEAPONS = {
     'sword'  :  ['Sword',  3, 'sliced at'],
 }
 
-SKILL_STRINGS = {
-    'double_trouble': 'twice in quick succession',
+'''
+Stores player skills
+'''
+SKILLS = {
+    'DOUBLE_TROUBLE': {
+        'name'    : 'Double Trouble',
+        'function': Player.double_trouble,
+        'message' : 'twice in quick succession',
+        'dmg'     : net_dmg * 2,
+        'type'    : 'single_target'
+    }
 }
 # EXTRACTOR FUNCTIONS
 def give_monster(specie, use_special_name=False):

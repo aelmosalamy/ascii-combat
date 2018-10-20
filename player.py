@@ -1,13 +1,20 @@
+'''
+Manages player, weapons, skills and display
+'''
 from monster import Monster
 import ac_dicts
 import colorama as C
 
 class Player(Monster):
-    def __init__(self, name, hp, weapon):
+    def __init__(self, name, hp, weapon, skill_type=None):
+        # weapon[1] is the dmg
         super().__init__(name, hp, weapon[1])
+        ac_dicts.net_dmg = self.dmg
+        # weapon[0] is name and weapon[2] is hit verb
         self.weapon = weapon[0]
         self.weapon_verb = weapon[2]
         self.enemies = []
+        self.skill_type = skill_type
         self.skill = 0
         self.max_skill = 3
 
@@ -29,13 +36,9 @@ class Player(Monster):
         if self.skill < self.max_skill:
             self.skill += 1
 
-    # Different special powers
-
-    # Attacks an enemy twice!
     def double_trouble(self, enemy):
         self.attack(enemy)
         self.attack(enemy)
-        self.skill = 0
         enemy.update_data()
 
     # def beam(self, enemy):
