@@ -11,11 +11,13 @@ elif platform.system() == 'Linux' or 'Darwin':
     os.system('resize -s 30 60')
 
 def main():
-    me = Player('Player', 10, WEAPONS['sword'], SKILLS['DOUBLE_TROUBLE'])
+    me = Player('Player', 10, WEAPONS['dagger'], SKILLS['ARROW_STORM'])
     enemies = []
-    for i in range(4):
-        m = give_monster('chicken')
+    for i in range(1):
+        m = give_monster('spider')
         enemies.append(m)
+    enemies.append(give_monster('bear', True))
+    enemies.append(give_monster('wolf', True))
 
     game = combat.Combat(me, enemies)
     game.cmdloop()

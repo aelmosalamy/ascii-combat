@@ -15,7 +15,7 @@ class Combat(cmd.Cmd):
     'syntax_error' : 'Oops! I dont understand',
     'unknown_enemy': "I can't see that enemy!",
     'enemy_death'  : "You eliminated",
-    'user_death'   : "You bled too much.. Argh!",
+    'user_death'   : "You are bleeding too much.. Argh!",
     'full_hp'      : "You are perfectly healthy!",
     'prompt'       : 'Type <atk> to attack:\n> ',
     'prompt_skl'   : 'Type <atk> or <skl>:\n> ',
@@ -59,6 +59,11 @@ class Combat(cmd.Cmd):
         self.display()
         print(C.Back.RED + C.Fore.RED + '{}{} <{}>{}'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line, C.Back.BLACK))
         print(C.Back.BLACK + C.Fore.WHITE, end='')
+    
+    # Removes the help method
+    def do_help(self, arg):
+        self.display()
+        pass
 
     # Controls termination of Combat, win/lose msg
     def postcmd(self, stop, line):
@@ -113,27 +118,41 @@ class Combat(cmd.Cmd):
         else:
             return False
 
+    # Checks if enemy will die from a specific blow and returns a string accordingly
+    def enemy_death_msg(self, enemy, dmg_taken):
+        if (enemy.hp - dmg_taken) <= 0:
+            # Message if enemy is dead
+            outcome = "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
+            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
+        else:
+            outcome = ''
+        return outcome
+
     # Attacks a chosen enemy
     def user_attack(self, enemy):
         self.user_attack_msg = "{}{}{} {} (-{}HP)".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.CYAN, self.PROMPT_SIGN,
         self.STRINGS['player_attack'], enemy.name, self.user.dmg)
-        if (enemy.hp - self.user.dmg) <= 0:
-            # Message if enemy is dead
-            self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
-            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
+        self.user_attack_msg += self.enemy_death_msg(enemy, self.user.dmg)
         self.user.attack(enemy)
 
     # Attacks enemy using the player's current skill
-    def user_skill(self, enemies, multitarget = False):
+    def user_skill(self, enemies):
         my_skill = self.user.skill_type
-        self.user_attack_msg = (C.Style.BRIGHT + C.Back.BLACK + C.Fore.MAGENTA +
-        "{}SKILL: {} >>>\n{} {} {} (-{}HP)".format(self.PROMPT_SIGN, my_skill['name'], self.STRINGS['player_attack'],
-        enemies.name, my_skill['message'], my_skill['dmg']))
-        if (enemies.hp - my_skill['dmg']) <= 0:
-            # Message if enemy is dead
-            self.user_attack_msg += "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
-            self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemies.name, C.Back.BLACK)
-        my_skill['function'](self.user, enemies)
+        # Executes skill depending multi-target/single-target skill
+        if my_skill['ismulti']:
+            self.user_attack_msg = (C.Style.BRIGHT + C.Back.BLACK + C.Fore.MAGENTA +
+            "{}SKILL: {} >>>\n{} (-{}HP to all)".format(self.PROMPT_SIGN, my_skill['name'].upper(),
+            my_skill['message'], my_skill['dmg']))
+            for enemy in enemies:
+                self.user_attack_msg += self.enemy_death_msg(enemy, my_skill['dmg'])
+            my_skill['function'](self.user, enemies)
+        else:
+            self.user_attack_msg = (C.Style.BRIGHT + C.Back.BLACK + C.Fore.MAGENTA +
+            "{}SKILL: {} >>>\n{} {} {} (-{}HP)".format(self.PROMPT_SIGN, my_skill['name'].upper(), self.STRINGS['player_attack'],
+            enemies.name, my_skill['message'], my_skill['dmg']))
+            self.user_attack_msg += self.enemy_death_msg(enemies, my_skill['dmg'])
+            my_skill['function'](self.user, enemies)
+        self.user.skill = 0
 
     # All alive enemies attacks the user and returns a hit string
     def enemies_attack(self):
@@ -149,10 +168,10 @@ class Combat(cmd.Cmd):
         messages += C.Style.BRIGHT + C.Back.CYAN + C.Fore.CYAN
         if self.user.hp <= 0:
             messages += self.PROMPT_SIGN + self.STRINGS['user_death'] + C.Back.BLACK
-        elif self.user.hp == 10:
+        elif self.user.hp == self.user.max_hp:
             messages += self.PROMPT_SIGN + self.STRINGS['full_hp'] + C.Back.BLACK
         else:
-            messages += '{}You got {}/{} HP left{}'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp, C.Back.BLACK)
+            messages += '{}You survived enemy attacks with {}/{} HP left{}'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp, C.Back.BLACK)
         self.enemies_attack_msg = messages
 
 
@@ -174,7 +193,7 @@ class Combat(cmd.Cmd):
          
     # Clears the terminal using the approperiate subshell command
     # for each terminal
-    def clear(self, no_of_lines = 40):
+    def clear(self):
         print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE, end='')
         if platform.system() == 'Windows':
             os.system('cls')
@@ -215,9 +234,17 @@ class Combat(cmd.Cmd):
         """Unleashs special power using up all power points, type <skl>"""
         if self.user.skill_type == None:
             self.error_msg(self.STRINGS['no_skl'])
-        else:
-            if self.user.skill == self.user.max_skill:
+        elif self.user.skill == self.user.max_skill:
+            # Multi and single target skill execution
+            if not self.user.skill_type['ismulti']:
                 self.demand_and_execute(self.user_skill, self.STRINGS['skl_choice'])
-                self.user.skill = 0
             else:
-                self.error_msg(self.STRINGS['no_pwr'])
+                enemies_list = []
+                for enemy in self.enemies:
+                    if enemy.alive:
+                        enemies_list.append(enemy)
+                self.user_skill(enemies_list)
+                self.enemies_attack()
+                self.display()
+        else:
+            self.error_msg(self.STRINGS['no_pwr'])
