@@ -1,5 +1,5 @@
 '''
-Manages player, weapons, skills and display
+A Player class, every player got: HP, DMG, WEAPON and a SKILL
 '''
 from monster import Monster
 import ac_dicts
@@ -28,7 +28,7 @@ class Player(Monster):
             print(C.Fore.MAGENTA + '* HP     |' + C.Fore.CYAN + '{}/{}'.format(self.hp, self.max_hp))
         print(C.Fore.MAGENTA + '* Weapon |' + C.Fore.CYAN + '{} (DMG: {})'.format(self.weapon, self.dmg))
         print(C.Fore.MAGENTA + '* Skill  |' + C.Fore.CYAN + '{}'.format(self.skill_type['name']))
-        pwr_string = C.Fore.MAGENTA + '* Power  |' + C.Fore.CYAN + ('*' * self.skill) + 'o' * (self.max_skill - self.skill)
+        pwr_string = C.Fore.MAGENTA + '* Power  |' + C.Fore.CYAN + ('●' * self.skill) + 'o' * (self.max_skill - self.skill)
         if self.skill == self.max_skill:
             print(pwr_string + ' (Ready!)')
         else: print(pwr_string)

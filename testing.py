@@ -29,7 +29,15 @@ var = 2
 def myfunc():
     var = 5
     return var
-    
+
+# OR test
+def or_test():
+    i = 3
+    if i == 2 or i == 3:
+     print('i is %s' % i)
+    else:
+        print('None')
+
 def func_return_test():
     print(myfunc())
     print(var)
@@ -43,7 +51,7 @@ def dict_test():
     print(mydictionary['apple'])
 
 def main():
-    func_return_test()
+    or_test()
 
 
 if __name__ == '__main__':

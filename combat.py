@@ -174,7 +174,6 @@ class Combat(cmd.Cmd):
             messages += '{}You survived enemy attacks with {}/{} HP left{}'.format(self.PROMPT_SIGN, self.user.hp, self.user.max_hp, C.Back.BLACK)
         self.enemies_attack_msg = messages
 
-
     # UTILITY FUNCTIONS   
     # Displays the interface: All Enemies and user status
     def display(self, clear = True):
@@ -193,13 +192,15 @@ class Combat(cmd.Cmd):
          
     # Clears the terminal using the approperiate subshell command
     # for each terminal
-    def clear(self):
+    @staticmethod
+    def clear():
         print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE, end='')
         if platform.system() == 'Windows':
             os.system('cls')
-        elif platform.system() == 'Linux' or 'Darwin':
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
             os.system('clear')
     
+    # A wrapper for printing a RED error message
     def error_msg(self, text):
         self.display()
         print(C.Back.RED + C.Fore.RED + 

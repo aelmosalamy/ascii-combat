@@ -11,6 +11,7 @@ A simple CLI text adventure game, created for learning purposes.
 * To try the game, download the .zip file, extract it and run "main.py" - which basically sets terminal color and title before running "main.py", keep in mind this - should I call it a game? - isn't complete and is currently under development.
 
 ### Pull Requests
+* I really welcome pull requests, specially if it is your first time, checkout the current issues and any little correction, bugfix, new feature will be reviewed and added if possible.
 * Feel free to send PRs (Check open issues first).
 * Clean, well-documented code is pretty appreciated.
 
