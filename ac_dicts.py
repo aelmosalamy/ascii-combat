@@ -4,6 +4,7 @@ This contains multiple dictionaries of different enemies, weapons, and so on
 from monster import Monster
 from player import Player
 from random import choice
+import colorama as C
 
 # Damage to be used for skills usually equals to player's current dmg
 initial_dmg = 0
@@ -14,6 +15,8 @@ INVENTORY_TAGS = ['food', 'weapon', 'armor']
 
 # Text constants
 BULLET = '  > '
+# The color used to highlight name with which the user can interact
+HIGHLIGHT_COLOR = C.Fore.MAGENTA
 
 # Weapon dict keys
 FIST = 'fist'
@@ -171,10 +174,12 @@ ROOMS = {
     },
 }
 
+# GROUNDDESC is splitted into two, because later the item will be
+# colored and insered between them
 ITEMS = {
     'apple': {
         NAME: 'Apple',
-        GROUNDDESC: 'An apple lies in the dirt',
+        GROUNDDESC: ['An', 'lies in the dirt'],
         SHORTDESC: 'a red, shiny apple',
         LONGDESC: 'This is a delicious, edible fruit. Perhaps you can eat it.',
         TAKEABLE: True,
@@ -182,8 +187,8 @@ ITEMS = {
         TAG: 'food',
     },
     'cake': {
-        NAME: 'Vanilla Cake',
-        GROUNDDESC: 'A lovely vanilla cake is inside a box placed on ground',
+        NAME: 'Cake',
+        GROUNDDESC: ['A lovely vanilla', 'is inside a box placed on ground'],
         SHORTDESC: 'a tasty vanilla cake',
         LONGDESC: 'This delicious treat was baked with love at the Grand Bakery, made from authentic vanilla and chocochips',
         TAKEABLE: True,
@@ -193,7 +198,7 @@ ITEMS = {
     },
     'bread': {
         NAME: 'Bread',
-        GROUNDDESC: 'A loaf of bread lies on ground',
+        GROUNDDESC: ['A loaf of', 'lies on ground'],
         SHORTDESC: 'a warm bread loaf',
         LONGDESC: 'This bread is full of carbohydrates it can easily satisfy your hunger',
         TAKEABLE: True,
@@ -203,7 +208,7 @@ ITEMS = {
     },
     'fountain': {
         NAME: 'Fountain',
-        GROUNDDESC: 'A white fountain is streaming water',
+        GROUNDDESC: ['A white', 'is streaming water'],
         SHORTDESC: 'a fabulous, marble fountain',
         LONGDESC: 'This beautiful sculpture is emanating water, attracting various kinds of birds.',
         TAKEABLE: False,
@@ -212,7 +217,7 @@ ITEMS = {
     },
     'dagger': {
         NAME: 'Dagger',
-        GROUNDDESC: 'A rusty dagger is thrown on the ground',
+        GROUNDDESC: ['A rusty', 'is thrown on the ground'],
         SHORTDESC: 'a rusty, old dagger',
         LONGDESC: 'This dagger, ancient and rusty as it is, is still sharp enough to be used as a weapon.',
         TAKEABLE: True,
@@ -273,7 +278,9 @@ def get_items_grounddesc(room, item_look=None):
     for item_name in room[GROUND]:
         item = ITEMS[item_name]
         # Add item GROUNDDESC to be displayed
-        text += BULLET + item[GROUNDDESC] + '\n'
+        text += '{} {} {}'.format(BULLET + item[GROUNDDESC][0],
+        HIGHLIGHT_COLOR + item[NAME].lower() + C.Fore.WHITE,
+        item[GROUNDDESC][1] + '\n')
     return text
 
 # Returns items SHORTDESC as bullet points
