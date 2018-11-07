@@ -8,6 +8,13 @@ from random import choice
 # Damage to be used for skills usually equals to player's current dmg
 initial_dmg = 0
 
+# Constants
+# This is the list of tags to be displayed in inventory
+INVENTORY_TAGS = ['food', 'weapon', 'armor'] 
+
+# Text constants
+BULLET = '  > '
+
 # Weapon dict keys
 FIST = 'fist'
 DAGGER = 'dagger'
@@ -30,8 +37,10 @@ GROUNDDESC = 'grounddesc'
 SHORTDESC = 'shortdesc'
 LONGDESC = 'longdesc'
 TAKEABLE = 'takeable'
+PRICE = 'price'
 EDIBLE = 'edible'
 WEAPON = 'weapon'
+TAG = 'tag' # Tags can be FOOD, WEAPON, ARMOR, DECOR
 
 # DATA DICTIONARIES
 MONSTER_VARIATION = ['Ruthless', 'Ferocious', 'Demonic',
@@ -74,7 +83,10 @@ WEAPONS = {
 '''
 Stores player skills
 '''
-SKILLS = {    
+SKILLS = {
+        'NONE': {
+            'name'    : 'None',
+        },
         'DOUBLE_TROUBLE': {
             'name'    : 'Double Trouble',
             'function': Player.double_trouble,
@@ -102,7 +114,7 @@ ROOMS = {
         WEST: 'house_63',
         UP: None,
         DOWN: None,
-        GROUND: ['apple'],
+        GROUND: ['fountain', 'apple', 'bread'],
         SHOP: [],
     },
     'house_63': {
@@ -163,19 +175,50 @@ ITEMS = {
     'apple': {
         NAME: 'Apple',
         GROUNDDESC: 'An apple lies in the dirt',
-        SHORTDESC: 'red, shiny apple',
-        LONGDESC: 'This is a delicious, edible fruit. Perhaps you can eat it',
+        SHORTDESC: 'a red, shiny apple',
+        LONGDESC: 'This is a delicious, edible fruit. Perhaps you can eat it.',
         TAKEABLE: True,
         EDIBLE: True,
+        TAG: 'food',
+    },
+    'cake': {
+        NAME: 'Vanilla Cake',
+        GROUNDDESC: 'A lovely vanilla cake is inside a box placed on ground',
+        SHORTDESC: 'a tasty vanilla cake',
+        LONGDESC: 'This delicious treat was baked with love at the Grand Bakery, made from authentic vanilla and chocochips',
+        TAKEABLE: True,
+        PRICE: 20,
+        EDIBLE: True,
+        TAG: 'food',
+    },
+    'bread': {
+        NAME: 'Bread',
+        GROUNDDESC: 'A loaf of bread lies on ground',
+        SHORTDESC: 'a warm bread loaf',
+        LONGDESC: 'This bread is full of carbohydrates it can easily satisfy your hunger',
+        TAKEABLE: True,
+        PRICE: 5,
+        EDIBLE: True,
+        TAG: 'food',
+    },
+    'fountain': {
+        NAME: 'Fountain',
+        GROUNDDESC: 'A white fountain is streaming water',
+        SHORTDESC: 'a fabulous, marble fountain',
+        LONGDESC: 'This beautiful sculpture is emanating water, attracting various kinds of birds.',
+        TAKEABLE: False,
+        EDIBLE: False,
+        TAG: 'decor',
     },
     'dagger': {
         NAME: 'Dagger',
         GROUNDDESC: 'A rusty dagger is thrown on the ground',
-        SHORTDESC: 'rusty, old dagger',
-        LONGDESC: 'This dagger, ancient and mysterious as it is, is still sharp enough to be a handy weapon',
+        SHORTDESC: 'a rusty, old dagger',
+        LONGDESC: 'This dagger, ancient and rusty as it is, is still sharp enough to be used as a weapon.',
         TAKEABLE: True,
         EDIBLE: False,
-        WEAPON: WEAPONS[DAGGER]
+        WEAPON: WEAPONS[DAGGER],
+        TAG: 'weapon',
     }
 }
 
@@ -213,7 +256,7 @@ def give_monster(specie, use_special_name=False):
         x.name = '{} {}'.format(adjective,  x.name)
     return x
 
-# Returns rooms exits as pairs of DIRECTION: DESTINATION
+# Returns rooms exits as a dictionary of {DIRECTION: DESTINATION, ...}
 def get_room_exits(room):
     exits = {}
     for dir in DIRECTIONS:
@@ -224,9 +267,40 @@ def get_room_exits(room):
             # exits[dir] = str(None)
     return exits
 
-def get_items_grounddesc(room):
+# Returns items GROUNDDESC as bullet points
+def get_items_grounddesc(room, item_look=None):
     text = ''
     for item_name in room[GROUND]:
         item = ITEMS[item_name]
-        text += '  > ' + item[GROUNDDESC] + '\n'
+        # Add item GROUNDDESC to be displayed
+        text += BULLET + item[GROUNDDESC] + '\n'
+    return text
+
+# Returns items SHORTDESC as bullet points
+def get_items_shortdesc(item_names):
+    text = ''
+    for item_name in item_names:
+        item = ITEMS[item_name]
+        # Add item SHORTDESC to be displayed
+        text += BULLET + item[SHORTDESC] + '\n'
+    return text
+
+# Sorts items in an inventory and prints them
+def sort_inventory_items(item_names):
+    text = ''
+    food_tag   = 'Food  : '
+    weapon_tag = 'Weapon: '
+    armor_tag  = 'Armor : '
+    for item_name in item_names:
+        item = ITEMS[item_name]
+        if item[TAG] == 'food':
+            food_tag += item[NAME] + ' | '
+        elif item[TAG] == 'weapon':
+            weapon_tag += item[NAME] + ' | '
+        elif item[TAG] == 'armor':
+            armor_tag += item[NAME] + ' | '
+    
+    text += food_tag + '\n'
+    text += armor_tag + '\n'
+    text += weapon_tag + '\n'
     return text

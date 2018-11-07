@@ -16,7 +16,10 @@ class Player(Monster):
         self.weapon = weapon[0]
         self.weapon_verb = weapon[2]
         self.enemies = []
-        self.skill_type = skill_type
+        if not skill_type:
+            self.skill_type = ac_dicts.SKILLS['NONE']
+        else:
+            self.skill_type = skill_type
         self.skill = 0
         self.max_skill = 3
 

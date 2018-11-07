@@ -18,10 +18,10 @@ elif platform.system() == 'Linux' or platform.system() == 'Darwin':
 def main():
     me = player.Player('Bori', 10, WEAPONS[DAGGER], SKILLS['DOUBLE_TROUBLE'])
     enemies = [give_monster('wolf') for i in range(3)]
-    # world = dungeon.Dungeon(me, ROOMS)
-    # world.cmdloop()
-    game = combat.Combat(me, enemies)
-    game.cmdloop()
+    world = dungeon.Dungeon(me, ROOMS)
+    world.cmdloop()
+    # game = combat.Combat(me, enemies)
+    # game.cmdloop()
 
 if __name__ == '__main__':
     main()  
