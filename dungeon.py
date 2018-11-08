@@ -72,7 +72,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Displays an error prompt, supports multi-line prompts
     def error_msg(self, text):
         self.display_current_room()
-        print(C.Back.RED + C.Fore.RED, end='')
+        print(C.Back.RED + C.Fore.BLACK, end='')
         _text = text.split('\n')
         for line in _text:
             print(self.PROMPT_SIGN + line)
@@ -80,7 +80,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Displays an achievement/notification, supports multi-line prompts
     def achieve_msg(self, text, wrap=False):
-        print(C.Back.CYAN + C.Fore.CYAN, end='')
+        print(C.Back.CYAN + C.Fore.BLACK, end='')
         if wrap:
             _text = textwrap.wrap(text, self.SCREEN_WIDTH - len(self.PROMPT_SIGN))
             for line in _text:
