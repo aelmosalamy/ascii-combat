@@ -15,8 +15,15 @@ INVENTORY_TAGS = ['food', 'weapon', 'armor']
 
 # Text constants
 BULLET = '  > '
+SEP = ' ● '
 # The color used to highlight name with which the user can interact
 HIGHLIGHT_COLOR = C.Fore.MAGENTA
+
+# General color constants
+CYAN = C.Fore.CYAN
+WHITE = C.Fore.WHITE
+BRIGHT = C.Style.BRIGHT
+DIM = C.Style.NORMAL
 
 # Weapon dict keys
 FIST = 'fist'
@@ -279,7 +286,7 @@ def get_items_grounddesc(room, item_look=None):
         item = ITEMS[item_name]
         # Add item GROUNDDESC to be displayed
         text += '{} {} {}'.format(BULLET + item[GROUNDDESC][0],
-        HIGHLIGHT_COLOR + item[NAME].lower() + C.Fore.WHITE,
+        HIGHLIGHT_COLOR + item[NAME].lower() + WHITE,
         item[GROUNDDESC][1] + '\n')
     return text
 
@@ -290,24 +297,4 @@ def get_items_shortdesc(item_names):
         item = ITEMS[item_name]
         # Add item SHORTDESC to be displayed
         text += BULLET + item[SHORTDESC] + '\n'
-    return text
-
-# Sorts items in an inventory and prints them
-def sort_inventory_items(item_names):
-    text = ''
-    food_tag   = 'Food  : '
-    weapon_tag = 'Weapon: '
-    armor_tag  = 'Armor : '
-    for item_name in item_names:
-        item = ITEMS[item_name]
-        if item[TAG] == 'food':
-            food_tag += item[NAME] + ' | '
-        elif item[TAG] == 'weapon':
-            weapon_tag += item[NAME] + ' | '
-        elif item[TAG] == 'armor':
-            armor_tag += item[NAME] + ' | '
-    
-    text += food_tag + '\n'
-    text += armor_tag + '\n'
-    text += weapon_tag + '\n'
     return text

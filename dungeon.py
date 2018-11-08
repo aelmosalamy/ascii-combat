@@ -9,8 +9,8 @@ class Dungeon(cmd.Cmd):
     location = 'town_square'
     current_room = ROOMS[location]
 
-    inventory = ['apple', 'fountain', 'dagger', 'cake', 'apple', 'bread']
-    
+    inventory = ['apple', 'fountain', 'dagger', 'cake', 'apple', 'bread',
+    'apple', 'apple', 'apple', 'apple', 'cake', 'cake', 'bread', 'bread']
     PROMPT_SIGN = '# '
     INV_INTRO = '[INVENTORY]'
     UNKNOWN_CMD = 'What do you mean by that?'
@@ -72,7 +72,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Displays an error prompt, supports multi-line prompts
     def error_msg(self, text):
         self.display_current_room()
-        print(C.Back.RED + C.Fore.RED, end='')
+        print(C.Fore.RED, end='')
         _text = text.split('\n')
         for line in _text:
             print(self.PROMPT_SIGN + line)
@@ -80,7 +80,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Displays an achievement/notification, supports multi-line prompts
     def achieve_msg(self, text, wrap=False):
-        print(C.Back.CYAN + C.Fore.CYAN, end='')
+        print(C.Back.BLUE + C.Fore.CYAN, end='')
         if wrap:
             _text = textwrap.wrap(text, self.SCREEN_WIDTH - len(self.PROMPT_SIGN))
             for line in _text:
@@ -137,11 +137,34 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         print('  ' + C.Fore.YELLOW + self.INV_INTRO)
         # print('    ' + len(self.INV_INTRO) * '=') Underlines inventory string
         self.reset_color()
-        print(sort_inventory_items(self.inventory))
+        self.sort_inventory_items(self.inventory)
 
     # Prints an ASCII map of all rooms
     def graph_room(self):
         pass
+
+    # Sorts items in a list of items (particularly self.inventory) and prints them
+    def sort_inventory_items(self, item_names):
+        text = ''
+        l = 8 # Length of 'Name  | ' to be used as indent
+        food_tag   = CYAN + 'Food  | '
+        weapon_tag = CYAN + 'Weapon| '
+        armor_tag  = CYAN + 'Armor | '
+        for item_name in item_names:
+            item = ITEMS[item_name]
+            if item[TAG] == 'food':
+                food_tag += WHITE + item[NAME] + CYAN + SEP + WHITE
+            elif item[TAG] == 'weapon':
+                weapon_tag += WHITE + item[NAME] + CYAN + SEP + WHITE
+            elif item[TAG] == 'armor':
+                armor_tag += WHITE + item[NAME] + CYAN + SEP + WHITE
+        
+        # Support for big inventories with textwrap
+        _food = textwrap.wrap(food_tag, self.SCREEN_WIDTH + 43)
+        print(_food[0])
+        _food.remove(_food[0])
+        for line in _food:
+            print(' ' * l + line)
 
     # Follows a given direction to move from current location to a new location
     def go_new_location(self, input):

@@ -57,8 +57,8 @@ class Combat(cmd.Cmd):
     # Error message for unknown commands
     def default(self, line):
         self.display()
-        print(C.Back.RED + C.Fore.RED + '{}{} <{}>{}'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line, C.Back.BLACK))
-        print(C.Back.BLACK + C.Fore.WHITE, end='')
+        print(C.Fore.RED + '{}{} <{}>{}'.format(self.PROMPT_SIGN, self.STRINGS['syntax_error'], line, C.Back.BLACK))
+        print(C.Fore.WHITE, end='')
     
     # Removes the help method
     def do_help(self, arg):
@@ -69,11 +69,11 @@ class Combat(cmd.Cmd):
     def postcmd(self, stop, line):
         # Checks win condition
         if not self.enemies_alive():
-            print(C.Back.GREEN + C.Fore.GREEN + self.PROMPT_SIGN + self.STRINGS['win'] + C.Back.BLACK, end='')
+            print(C.Back.GREEN + C.Fore.WHITE + self.PROMPT_SIGN + self.STRINGS['win'] + C.Back.BLACK, end='')
             input()
             return True
         elif self.enemies_alive() and not self.user.alive:
-            print(C.Back.RED + C.Fore.RED + self.PROMPT_SIGN + self.STRINGS['lose'] + C.Back.BLACK, end='')
+            print(C.Back.RED + C.Fore.WHITE + self.PROMPT_SIGN + self.STRINGS['lose'] + C.Back.BLACK, end='')
             input()
             return True
         # Changes prompt if Skill is available to use
@@ -122,7 +122,7 @@ class Combat(cmd.Cmd):
     def enemy_death_msg(self, enemy, dmg_taken):
         if (enemy.hp - dmg_taken) <= 0:
             # Message if enemy is dead
-            outcome = "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.RED + C.Fore.RED, 
+            outcome = "\n{}{}{} {}{}".format(C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED, 
             self.PROMPT_SIGN, self.STRINGS['enemy_death'], enemy.name, C.Back.BLACK)
         else:
             outcome = ''
@@ -156,7 +156,7 @@ class Combat(cmd.Cmd):
 
     # All alive enemies attacks the user and returns a hit string
     def enemies_attack(self):
-        messages = C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED
+        messages = C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE
         for enemy in self.enemies:
             if enemy.alive:
                 if enemy.dmg == 0:
@@ -165,7 +165,7 @@ class Combat(cmd.Cmd):
                     enemy.attack(self.user)
                     hit_string = "!! {} {} you (-{}HP)\n".format(enemy.name, enemy.action, str(enemy.dmg))
                 messages += hit_string
-        messages += C.Style.BRIGHT + C.Back.CYAN + C.Fore.CYAN
+        messages += C.Style.BRIGHT + C.Back.LIGHTCYAN_EX + C.Fore.BLUE
         if self.user.hp <= 0:
             messages += self.PROMPT_SIGN + self.STRINGS['user_death'] + C.Back.BLACK
         elif self.user.hp == self.user.max_hp:
@@ -203,9 +203,9 @@ class Combat(cmd.Cmd):
     # A wrapper for printing a RED error message
     def error_msg(self, text):
         self.display()
-        print(C.Back.RED + C.Fore.RED + 
+        print(C.Fore.RED + 
         self.PROMPT_SIGN + text +
-        C.Back.BLACK + C.Fore.WHITE)
+        C.Fore.WHITE)
 
     # A loop that executes any given function on an enemy
     # whenever a valid input is entered
@@ -221,7 +221,7 @@ class Combat(cmd.Cmd):
                 self.display()
                 return True
             except KeyError:
-                print(C.Back.RED + C.Fore.RED, end='')
+                print(C.Fore.RED, end='')
                 input(self.PROMPT_SIGN + self.STRINGS['unknown_enemy'])
                 self.display()
                     
