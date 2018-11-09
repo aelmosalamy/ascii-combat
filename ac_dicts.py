@@ -46,11 +46,11 @@ DIRECTIONS = [NORTH, SOUTH, EAST, WEST, UP, DOWN]
 GROUNDDESC = 'grounddesc'
 SHORTDESC = 'shortdesc'
 LONGDESC = 'longdesc'
-TAKEABLE = 'takeable'
+PICKABLE = 'pickable'
 PRICE = 'price'
 EDIBLE = 'edible'
 WEAPON = 'weapon'
-TAG = 'tag' # Tags can be FOOD, WEAPON, ARMOR, DECOR
+TAG = 'tag' # Tags can be food, weapon, random, decor
 
 # DATA DICTIONARIES
 MONSTER_VARIATION = ['Ruthless', 'Ferocious', 'Demonic',
@@ -189,7 +189,7 @@ ITEMS = {
         GROUNDDESC: ['An', 'lies in the dirt'],
         SHORTDESC: 'a red, shiny apple',
         LONGDESC: 'This is a delicious, edible fruit. Perhaps you can eat it.',
-        TAKEABLE: True,
+        PICKABLE: True,
         EDIBLE: True,
         TAG: 'food',
     },
@@ -198,7 +198,7 @@ ITEMS = {
         GROUNDDESC: ['A lovely vanilla', 'is inside a box placed on ground'],
         SHORTDESC: 'a tasty vanilla cake',
         LONGDESC: 'This delicious treat was baked with love at the Grand Bakery, made from authentic vanilla and chocochips',
-        TAKEABLE: True,
+        PICKABLE: True,
         PRICE: 20,
         EDIBLE: True,
         TAG: 'food',
@@ -208,7 +208,7 @@ ITEMS = {
         GROUNDDESC: ['A loaf of', 'lies on ground'],
         SHORTDESC: 'a warm bread loaf',
         LONGDESC: 'This bread is full of carbohydrates it can easily satisfy your hunger',
-        TAKEABLE: True,
+        PICKABLE: True,
         PRICE: 5,
         EDIBLE: True,
         TAG: 'food',
@@ -218,7 +218,7 @@ ITEMS = {
         GROUNDDESC: ['A white', 'is streaming water'],
         SHORTDESC: 'a fabulous, marble fountain',
         LONGDESC: 'This beautiful sculpture is emanating water, attracting various kinds of birds.',
-        TAKEABLE: False,
+        PICKABLE: False,
         EDIBLE: False,
         TAG: 'decor',
     },
@@ -227,7 +227,7 @@ ITEMS = {
         GROUNDDESC: ['A rusty', 'is thrown on the ground'],
         SHORTDESC: 'a rusty, old dagger',
         LONGDESC: 'This dagger, ancient and rusty as it is, is still sharp enough to be used as a weapon.',
-        TAKEABLE: True,
+        PICKABLE: True,
         EDIBLE: False,
         WEAPON: WEAPONS[DAGGER],
         TAG: 'weapon',

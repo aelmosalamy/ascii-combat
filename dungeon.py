@@ -8,21 +8,29 @@ class Dungeon(cmd.Cmd):
 
     location = 'town_square'
     current_room = ROOMS[location]
+    coins = 0
+    last_item_picked = None
 
-    inventory = ['apple', 'fountain', 'dagger', 'cake', 'apple', 'bread',
-    'apple', 'apple', 'apple', 'apple', 'cake', 'cake', 'bread', 'bread']
+    inventory = []
     PROMPT_SIGN = '# '
-    INV_INTRO = '[INVENTORY]'
+
+    INV_INTRO = 'Pockets'
+    EMPTY_INV = 'Your pockets are empty . . .\n'
     UNKNOWN_CMD = 'What do you mean by that?'
     PROMPT_MSG = 'Would you like to: <go>? <pick>? <look>? <eat>?\n> '
+
     EMPTY_DIR = 'There is nothing found miles away towards'
     BAD_DIR = '''I dont think this direction can be found on any compass!
 Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     NO_DIR_GIVEN = 'Please tell me where do you want to go! e.g. "go north"'
     NO_UP = "You can't climb UP, and I don't believe you can fly anyway!"
     NO_DOWN = "There is no secret staircase DOWN here, except if you are good at digging!"
+
     BAD_ITEM = "I can't see that item anywhere in here!"
     NO_ITEM_GIVEN = 'What should I look at? e.g. "look apple"'
+    PICK_ITEM = ['You stuff that', 'in your can-hold-everything pocket']
+    NO_ITEM_GIVEN_PICK = 'What should I pick? e.g. "pick apple"'
+    NOT_PICKABLE = ["I am afraid you can't take that", "with you, It belongs here!"]
 
     def __init__(self, player, rooms):
         super().__init__()
@@ -33,6 +41,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         self.rooms = rooms
         self.intro = input(banner('. . . Welcome to ASCII Combat . . .\n. . . Press Enter to Continue . . .'))
         self.prompt = self.PROMPT_SIGN + self.PROMPT_MSG
+        self.INV_INTRO = "[{}'s {}]".format(self.player.name, self.INV_INTRO)
     
     # cmd.Cmd functions overriding
     # Avoids repitition of last command
@@ -117,15 +126,17 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         # deals with ANSI escape sequences as an actual string (while it is not actually
         # seen by the user) so this is a simple workaround
         EXTENSION = 2 # This controls how long the left handle for the banner is
-        x = 6 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {}".format(p.name, p.hp, p.max_hp, p.weapon, p.skill_type[NAME]))
+        x = 6 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {} [Coins] {}".format(p.name, p.hp, p.max_hp,
+        p.weapon, p.skill_type[NAME], self.coins))
         # Printing top border
         print('\{}┌{}┐        /'.format(' ' * (EXTENSION + 1), '-' * x))
         # Printing colored stats
-        c_user_stats = "{}[{}] {}[HP] {}/{} {}[Weapon] {} {}[Skill] {}".format(
+        c_user_stats = "{}[{}] {}[HP] {}/{} {}[Weapon] {} {}[Skill] {} {}[Coins] {}".format(
         C.Fore.CYAN, p.name,
         C.Fore.GREEN, p.hp, p.max_hp, 
         C.Fore.RED, p.weapon, 
-        C.Fore.MAGENTA, p.skill_type[NAME])
+        C.Fore.MAGENTA, p.skill_type[NAME],
+        C.Fore.YELLOW, self.coins)
         print(' \{}| {}{} {}'.format('_' * EXTENSION, c_user_stats, C.Fore.WHITE, '  |_______/'))
         # Print bot border
         print(' ' * (EXTENSION + 2) + '└' + '-' * x + '┘')
@@ -137,34 +148,68 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         print('  ' + C.Fore.YELLOW + self.INV_INTRO)
         # print('    ' + len(self.INV_INTRO) * '=') Underlines inventory string
         self.reset_color()
-        self.sort_inventory_items(self.inventory)
+        if self.inventory:
+            self.sort_inventory_items(self.inventory)
+        else:
+            print('  ' + self.EMPTY_INV)
 
-    # Prints an ASCII map of all rooms
-    def graph_room(self):
-        pass
-
-    # Sorts items in a list of items (particularly self.inventory) and prints them
+    # Sorts items in a list of items (particularly self.inventory) according
+    # to tags and prints them
     def sort_inventory_items(self, item_names):
-        text = ''
-        l = 8 # Length of 'Name  | ' to be used as indent
-        food_tag   = CYAN + 'Food  | '
-        weapon_tag = CYAN + 'Weapon| '
-        armor_tag  = CYAN + 'Armor | '
+        l = 9 # Length of 'Name  | ' to be used as indent
+        displayed_items = []
+        food_tag   = CYAN + 'Food   | '
+        weapon_tag = CYAN + 'Weapons| '
+        random_tag  = CYAN + 'Random | '
         for item_name in item_names:
-            item = ITEMS[item_name]
-            if item[TAG] == 'food':
-                food_tag += WHITE + item[NAME] + CYAN + SEP + WHITE
-            elif item[TAG] == 'weapon':
-                weapon_tag += WHITE + item[NAME] + CYAN + SEP + WHITE
-            elif item[TAG] == 'armor':
-                armor_tag += WHITE + item[NAME] + CYAN + SEP + WHITE
-        
+        # If that item got already displayed dont print second ocurrences
+            if item_name in displayed_items: 
+                pass
+            else:
+                item_count = item_names.count(item_name)
+                item = ITEMS[item_name]
+                # Prints item count if there is more than one of that item
+                if item_count == 1:
+                    x = item[NAME]
+                elif item_count > 1:       
+                    x = '{} ({})'.format(item[NAME], item_count)
+                # Highlights item name if it just got picked last turn
+                if item_name == self.last_item_picked:
+                    x = C.Fore.YELLOW + x + WHITE
+                if item[TAG] == 'food':
+                    food_tag += WHITE + x + CYAN + SEP + WHITE
+                elif item[TAG] == 'weapon':
+                    weapon_tag += WHITE + x + CYAN + SEP + WHITE
+                elif item[TAG] == 'random':
+                    random_tag += WHITE + x + CYAN + SEP + WHITE
+                # Our item is displayed with count, add it to displayed_items
+                displayed_items.append(item_name)
         # Support for big inventories with textwrap
+        # This to indent every single line except the first line which is printed
+        # independently, since it contains the title 'Food  |', then other lines are indented
+        # FOOD LINE
         _food = textwrap.wrap(food_tag, self.SCREEN_WIDTH + 43)
         print(_food[0])
         _food.remove(_food[0])
         for line in _food:
             print(' ' * l + line)
+        # WEAPON LINE
+        _weapon = textwrap.wrap(weapon_tag, self.SCREEN_WIDTH + 43)
+        print(_weapon[0])
+        _weapon.remove(_weapon[0])
+        for line in _weapon:
+            print(' ' * l + line)
+        # random LINE
+        _random = textwrap.wrap(random_tag, self.SCREEN_WIDTH + 43)
+        print(_random[0])
+        _random.remove(_random[0])
+        for line in _random:
+            print(' ' * l + line)      
+        print()
+
+    # Prints an ASCII map of all rooms
+    def graph_rooms(self):
+        pass
 
     # Follows a given direction to move from current location to a new location
     def go_new_location(self, input):
@@ -214,6 +259,31 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         elif not arg:
             self.display_current_room()
             self.error_msg(self.NO_ITEM_GIVEN)
+        elif arg.lower() not in current_room[GROUND]:
+            self.display_current_room()
+            self.error_msg(self.BAD_ITEM)
+    
+    # Pick an item (Remove it from ROOM[GROUND] add it to self.inventory)
+    def do_pick(self, arg):
+        current_room = ROOMS[self.location]
+        # If input is one of the items on ground
+        if arg.lower() in current_room[GROUND]:
+            item = ITEMS[arg.lower()]
+            # Pick if item is PICKABLE otherwise ERRORRRRR!!!
+            if item[PICKABLE]:
+                # Add item to inventory after removing it from ground then display
+                current_room[GROUND].remove(item[NAME].lower())
+                self.inventory.append(item[NAME].lower())
+                self.last_item_picked = item[NAME].lower()
+                self.display_current_room()
+                self.achieve_msg('{} {} {}'.format(self.PICK_ITEM[0], item[NAME].lower(), self.PICK_ITEM[1]))
+            else:
+                self.display_current_room()
+                self.error_msg('{} {} {}'.format(self.NOT_PICKABLE[0], item[NAME].lower(), self.NOT_PICKABLE[1]))
+        # Empty input
+        elif not arg:
+            self.display_current_room()
+            self.error_msg(self.NO_ITEM_GIVEN_PICK)
         elif arg.lower() not in current_room[GROUND]:
             self.display_current_room()
             self.error_msg(self.BAD_ITEM)
