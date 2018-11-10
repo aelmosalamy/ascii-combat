@@ -18,7 +18,6 @@ BULLET = '  > '
 SEP = ' ● '
 # The color used to highlight name with which the user can interact
 HIGHLIGHT_COLOR = C.Fore.MAGENTA
-
 # General color constants
 CYAN = C.Fore.CYAN
 WHITE = C.Fore.WHITE
@@ -124,7 +123,7 @@ ROOMS = {
         WEST: 'house_63',
         UP: None,
         DOWN: None,
-        GROUND: ['fountain', 'apple', 'bread'],
+        GROUND: ['fountain', 'apple', 'bread', 'coin'],
         SHOP: [],
     },
     'house_63': {
@@ -137,7 +136,7 @@ ROOMS = {
         WEST: None,
         UP: 'house_63_1',
         DOWN: None,
-        GROUND: [],
+        GROUND: ['coin', 'coin'],
         SHOP: [],
     },
     'house_63_1': {
@@ -179,6 +178,15 @@ ROOMS = {
         GROUND: [],
         SHOP: ['beef'],
     },
+}
+
+# coin items and their prices (Must use the exact name as their counterpart in ITEMS)
+# A sack contains 10x items, its value depend on the contained item's value
+COIN_VALUE = {
+    'coin': 1,
+    'gold coin': 7,
+    'coins sack': 10,
+    'gold coins sack': 70,
 }
 
 # GROUNDDESC is splitted into two, because later the item will be
@@ -231,6 +239,15 @@ ITEMS = {
         EDIBLE: False,
         WEAPON: WEAPONS[DAGGER],
         TAG: 'weapon',
+    },
+    'coin': {
+        NAME: 'Coin',
+        GROUNDDESC: ['A bronze', 'is dropped on the ground'],
+        SHORTDESC: 'a bronze coin',
+        LONGDESC: "This is a bronze coin, You can spend it at any shop in exchange for useful goods",
+        PICKABLE: True,
+        EDIBLE: False,
+        TAG: 'coins',
     }
 }
 
@@ -256,7 +273,14 @@ def banner(text, corner='+', border='-'):
         final_text.append('|{}{}|'.format(line, ' ' * dif))
     final_text.append(sides)
     return '\n'.join(final_text)
-    
+
+# True if text start with vowel and vice versa
+def use_an(text):
+    if text[0] in 'aeiou':
+        return True
+    else:
+        return False
+
 # EXTRACTOR FUNCTIONS
 def give_monster(specie, use_special_name=False):
     mySpecieStats = MONSTER_SPECIES[specie]

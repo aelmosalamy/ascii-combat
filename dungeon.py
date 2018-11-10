@@ -11,26 +11,44 @@ class Dungeon(cmd.Cmd):
     coins = 0
     last_item_picked = None
 
-    inventory = []
+    inventory = ['apple', 'coin', 'coin']
     PROMPT_SIGN = '# '
 
+    # String constants used for user interaction, They are supposed to be written
+    # in First-Person, some strings are placed in a list for those scenarios: 
+    # 1. An item name will be inserted in the middle
+    # 2. Multiple versions of same context to add variety to the dialogue (Nobody likes repitition)
+    # main loop
     INV_INTRO = 'Pockets'
     EMPTY_INV = 'Your pockets are empty . . .\n'
     UNKNOWN_CMD = 'What do you mean by that?'
     PROMPT_MSG = 'Would you like to: <go>? <pick>? <look>? <eat>?\n> '
-
+    # general
+    BAD_ITEM = "I can't see that item anywhere in here!"
+    UNKNOWN_ITEM = "!? What on earth is that? Never seen nor heared of such an item before"
+    # (go)
     EMPTY_DIR = 'There is nothing found miles away towards'
     BAD_DIR = '''I dont think this direction can be found on any compass!
 Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
-    NO_DIR_GIVEN = 'Please tell me where do you want to go! e.g. "go north"'
+    NO_DIR_GIVEN = 'Please tell me where do you want me go! e.g. "go north"'
     NO_UP = "You can't climb UP, and I don't believe you can fly anyway!"
     NO_DOWN = "There is no secret staircase DOWN here, except if you are good at digging!"
-
-    BAD_ITEM = "I can't see that item anywhere in here!"
+    # (look)
     NO_ITEM_GIVEN = 'What should I look at? e.g. "look apple"'
     PICK_ITEM = ['You stuff that', 'in your can-hold-everything pocket']
+    # (pick)
     NO_ITEM_GIVEN_PICK = 'What should I pick? e.g. "pick apple"'
     NOT_PICKABLE = ["I am afraid you can't take that", "with you, It belongs here!"]
+    # (eat)
+    BAD_FOOD = "would be delicious, unfortunately I don't have one"
+    NO_ITEM_GIVEN_EAT = 'I would like to eat, but what should I eat!? e.g. "eat apple"'
+    NOT_EDIBLE = [
+    ['They call me "Shark Teeth", but still this', 'is too hard for me to eat'],
+    ['I might suffocate eating this', ''],
+    ['Only a mad person would eat a', 'gladly I am not that guy'],
+    ['I am not sure if this', 'is edible, better not try']
+    ]
+    SWALLOW_SYNONYMS = ['consume', 'devour', 'gulp down', 'eat', 'swallow', 'feast on']
 
     def __init__(self, player, rooms):
         super().__init__()
@@ -51,7 +69,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Error message for unknown commands
     def default(self, line):
         self.display_current_room()
-        self.error_msg('{}!? {}'.format(line, self.UNKNOWN_CMD))
+        self.error_msg('"{}"!? {}'.format(line, self.UNKNOWN_CMD))
     
     # Removes the help method
     def do_help(self, arg):
@@ -63,9 +81,19 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Pre/Post Loop functions
     def preloop(self):
+        self.check_coins()
         self.display_current_room()
 
     # Utility functions
+    # Converts any 'money' item in inventory to the user's 'coin' counter
+    # based on the COIN_VALUE dictionary
+    def check_coins(self):
+        # Initializes coins
+        self.coins = 0
+        my_coins = [x for x in self.inventory if ITEMS[x][TAG] == 'coins']
+        for coin in my_coins:
+            self.coins += COIN_VALUE[coin]
+
     @staticmethod
     def reset_color():
         print(C.Back.BLACK + C.Fore.WHITE + C.Style.BRIGHT, end='')
@@ -94,7 +122,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             _text = textwrap.wrap(text, self.SCREEN_WIDTH - len(self.PROMPT_SIGN))
             for line in _text:
                 print(self.PROMPT_SIGN + line)
-        else: print(self.PROMPT_SIGN, text)
+        else: 
+            print(self.PROMPT_SIGN + text)
         self.reset_color()
 
     # Prints information about the current room
@@ -125,11 +154,11 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         # This long solution (instead of using "banner()") is done because len() function
         # deals with ANSI escape sequences as an actual string (while it is not actually
         # seen by the user) so this is a simple workaround
-        EXTENSION = 2 # This controls how long the left handle for the banner is
-        x = 6 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {} [Coins] {}".format(p.name, p.hp, p.max_hp,
+        EXTENSION = 1 # This controls how long the left handle for the banner is
+        x = 5 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {}[Coins] {}".format(p.name, p.hp, p.max_hp,
         p.weapon, p.skill_type[NAME], self.coins))
         # Printing top border
-        print('\{}┌{}┐        /'.format(' ' * (EXTENSION + 1), '-' * x))
+        print('\{}┌{}┐     /'.format(' ' * (EXTENSION + 1), '-' * x))
         # Printing colored stats
         c_user_stats = "{}[{}] {}[HP] {}/{} {}[Weapon] {} {}[Skill] {} {}[Coins] {}".format(
         C.Fore.CYAN, p.name,
@@ -137,7 +166,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         C.Fore.RED, p.weapon, 
         C.Fore.MAGENTA, p.skill_type[NAME],
         C.Fore.YELLOW, self.coins)
-        print(' \{}| {}{} {}'.format('_' * EXTENSION, c_user_stats, C.Fore.WHITE, '  |_______/'))
+        print(' \{}| {}{} {}'.format('_' * EXTENSION, c_user_stats, C.Fore.WHITE, '|____/'))
         # Print bot border
         print(' ' * (EXTENSION + 2) + '└' + '-' * x + '┘')
         self.display_inventory()
@@ -260,8 +289,13 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             self.display_current_room()
             self.error_msg(self.NO_ITEM_GIVEN)
         elif arg.lower() not in current_room[GROUND]:
-            self.display_current_room()
-            self.error_msg(self.BAD_ITEM)
+            if arg.lower() in ITEMS:
+                self.display_current_room()
+                self.error_msg(self.BAD_ITEM)
+            else:
+                self.display_current_room()
+                self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
+            
     
     # Pick an item (Remove it from ROOM[GROUND] add it to self.inventory)
     def do_pick(self, arg):
@@ -274,19 +308,62 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 # Add item to inventory after removing it from ground then display
                 current_room[GROUND].remove(item[NAME].lower())
                 self.inventory.append(item[NAME].lower())
+                self.check_coins()
                 self.last_item_picked = item[NAME].lower()
                 self.display_current_room()
-                self.achieve_msg('{} {} {}'.format(self.PICK_ITEM[0], item[NAME].lower(), self.PICK_ITEM[1]))
+                self.achieve_msg('{} {} {}'.format(self.PICK_ITEM[0],
+                HIGHLIGHT_COLOR + item[NAME].lower() + CYAN,
+                self.PICK_ITEM[1]))
             else:
                 self.display_current_room()
-                self.error_msg('{} {} {}'.format(self.NOT_PICKABLE[0], item[NAME].lower(), self.NOT_PICKABLE[1]))
+                self.error_msg('{} {} {}'.format(self.NOT_PICKABLE[0],
+                HIGHLIGHT_COLOR + item[NAME].lower() + C.Fore.RED, self.NOT_PICKABLE[1]))
         # Empty input
         elif not arg:
             self.display_current_room()
             self.error_msg(self.NO_ITEM_GIVEN_PICK)
         elif arg.lower() not in current_room[GROUND]:
+            if arg.lower() in ITEMS:
+                self.display_current_room()
+                self.error_msg(self.BAD_ITEM)
+            else:
+                self.display_current_room()
+                self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
+
+    
+    # Eat an item (Remove it from invetory)
+    def do_eat(self, arg):
+        # If input is found in inventory
+        if arg.lower() in self.inventory:
+            if ITEMS[arg.lower()][EDIBLE] == True:
+                # Generate a "You swallow-synonym that item" string
+                x = 'You {} that {}'.format(choice(self.SWALLOW_SYNONYMS), arg.lower())
+                # Remove item from inventory then display room
+                self.inventory.remove(arg.lower())
+                self.display_current_room()
+                self.achieve_msg(x)
+            else:
+                # Prints a funny prompt if item is not edible
+                s = choice(self.NOT_EDIBLE)
+                self.display_current_room()
+                self.achieve_msg(s[0] + ' {}{}{} '.format(HIGHLIGHT_COLOR, arg.lower(), CYAN) + s[1])
+        # Empty input
+        elif not arg:
             self.display_current_room()
-            self.error_msg(self.BAD_ITEM)
+            self.error_msg(self.NO_ITEM_GIVEN_EAT)
+        # If item isn't in inventory check if such item exists and prompt accordingly
+        elif arg.lower() not in self.inventory:
+            if arg.lower() in ITEMS:
+                self.display_current_room()
+                x = ' {}{}{} {}'.format(HIGHLIGHT_COLOR, arg.lower(), C.Fore.RED, self.BAD_FOOD)
+                if use_an(arg.lower()):
+                    x = 'An' + x
+                else:
+                    x = 'A' + x
+                self.error_msg(x)
+            else:
+                self.display_current_room()
+                self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
 
 if __name__ == '__main__':
     me = player.Player('Bori', 10, WEAPONS[DAGGER])
