@@ -11,7 +11,7 @@ class Dungeon(cmd.Cmd):
     coins = 0
     last_item_picked = None
 
-    inventory = ['apple']
+    inventory = ['apple', 'beef', 'sausage', 'sausage']
     PROMPT_SIGN = '# '
 
     # String constants used for user interaction, They are supposed to be written
@@ -160,9 +160,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 '-' * (ln - len(item[NAME])), C.Fore.YELLOW, ' ' * (3 - lnp), item[PRICE]))
                 self.reset_color()
             print()
-        else:
-            # Displays all items on the ground
-            print(get_items_grounddesc(current_room))
+        # Displays all items on the ground
+        print(get_items_grounddesc(current_room))
         # Displays exits with colors
         for k, v in get_room_exits(current_room).items():
             print('{}{}{}| {}{}'.format(C.Fore.MAGENTA, k.upper(), (5 - len(k)) * ' ', C.Fore.CYAN, v))
@@ -176,18 +175,18 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         # deals with ANSI escape sequences as an actual string (while it is not actually
         # seen by the user) so this is a simple workaround
         EXTENSION = 1 # This controls how long the left handle for the banner is
-        x = 5 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {}[Coins] {}".format(p.name, p.hp, p.max_hp,
+        x = 5 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {}[Coins] {}$".format(p.name, p.hp, p.max_hp,
         p.weapon, p.skill_type[NAME], self.coins))
         # Printing top border
-        print('\{}┌{}┐     /'.format(' ' * (EXTENSION + 1), '-' * x))
+        print('\{}┌{}┐   /'.format(' ' * (EXTENSION + 1), '-' * x))
         # Printing colored stats
-        c_user_stats = "{}[{}] {}[HP] {}/{} {}[Weapon] {} {}[Skill] {} {}[Coins] {}".format(
+        c_user_stats = "{}[{}] {}[HP] {}/{} {}[Weapon] {} {}[Skill] {} {}[Coins] {}$".format(
         C.Fore.CYAN, p.name,
         C.Fore.GREEN, p.hp, p.max_hp, 
         C.Fore.RED, p.weapon, 
         C.Fore.MAGENTA, p.skill_type[NAME],
         C.Fore.YELLOW, self.coins)
-        print(' \{}| {}{} {}'.format('_' * EXTENSION, c_user_stats, C.Fore.WHITE, '|____/'))
+        print(' \{}| {}{} {}'.format('_' * EXTENSION, c_user_stats, C.Fore.WHITE, '|__/'))
         # Print bot border
         print(' ' * (EXTENSION + 2) + '└' + '-' * x + '┘')
         self.display_inventory()
@@ -301,7 +300,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     def do_look(self, arg):
         current_room = ROOMS[self.location]
         # If input is one of the items on ground
-        if arg.lower() in current_room[GROUND]:
+        if arg.lower() in (current_room[GROUND] or current_room[SHOP]):
             item = ITEMS[arg.lower()]
             self.display_current_room()
             self.achieve_msg(item[LONGDESC], wrap = True)
