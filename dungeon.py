@@ -22,7 +22,7 @@ class Dungeon(cmd.Cmd):
     INV_INTRO = 'Pockets'
     EMPTY_INV = 'Your pockets are empty . . .\n'
     UNKNOWN_CMD = 'What do you mean by that?'
-    PROMPT_MSG = 'Would you like to: <go>? <pick>? <look>? <eat>?\n> '
+    PROMPT_MSG = 'Would you like to: <go>? <look>? <pick>? <drop>? <eat>?\n> '
     # general
     BAD_ITEM = "I can't see that item anywhere in here!"
     UNKNOWN_ITEM = "!? What on earth is that? Never seen nor heared of such an item before"
@@ -107,12 +107,15 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             os.system('clear')
 
     # Displays an error prompt, supports multi-line prompts
-    def error_msg(self, text):
+    def error_msg(self, text, wrap = True):
         self.display_current_room()
         print(C.Fore.RED, end='')
-        _text = text.split('\n')
-        for line in _text:
-            print(self.PROMPT_SIGN + line)
+        if wrap:
+            _text = textwrap.wrap(text, self.SCREEN_WIDTH - len(self.PROMPT_SIGN))
+            for line in _text:
+                print(self.PROMPT_SIGN + line)
+        else: 
+            print(self.PROMPT_SIGN + text)
         self.reset_color()
 
     # Displays an achievement/notification, supports multi-line prompts
