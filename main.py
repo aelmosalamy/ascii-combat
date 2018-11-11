@@ -5,7 +5,7 @@ import dungeon
 import os, platform
 
 SCREEN_WIDTH = 80
-SCREEN_HEIGHT = 30
+SCREEN_HEIGHT = 35
 
 # Configuring CMD's window
 if platform.system() == 'Windows':

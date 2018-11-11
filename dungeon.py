@@ -6,12 +6,12 @@ class Dungeon(cmd.Cmd):
 
     SCREEN_WIDTH = 80
 
-    location = 'town_square'
+    location = 'bakery'
     current_room = ROOMS[location]
     coins = 0
     last_item_picked = None
 
-    inventory = ['apple', 'coin', 'coin']
+    inventory = ['apple']
     PROMPT_SIGN = '# '
 
     # String constants used for user interaction, They are supposed to be written
@@ -23,6 +23,7 @@ class Dungeon(cmd.Cmd):
     EMPTY_INV = 'Your pockets are empty . . .\n'
     UNKNOWN_CMD = 'What do you mean by that?'
     PROMPT_MSG = 'Would you like to: <go>? <look>? <pick>? <drop>? <eat>?\n> '
+    ROOM_FULL = "This room can't take more, find somewhere else to drop your stuff!"
     # general
     BAD_ITEM = "I can't see that item anywhere in here!"
     UNKNOWN_ITEM = "!? What on earth is that? Never seen nor heared of such an item before"
@@ -30,18 +31,18 @@ class Dungeon(cmd.Cmd):
     EMPTY_DIR = 'There is nothing found miles away towards'
     BAD_DIR = '''I dont think this direction can be found on any compass!
 Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
-    NO_DIR_GIVEN = 'Please tell me where do you want me go! e.g. "go north"'
+    NO_DIR_GIVEN = '<!!> Where should I go? e.g. "go north"'
     NO_UP = "You can't climb UP, and I don't believe you can fly anyway!"
     NO_DOWN = "There is no secret staircase DOWN here, except if you are good at digging!"
     # (look)
-    NO_ITEM_GIVEN = 'What should I look at? e.g. "look apple"'
+    NO_ITEM_GIVEN = '<!!> What should I look at? e.g. "look apple"'
     PICK_ITEM = ['You stuff that', 'in your can-hold-everything pocket']
     # (pick)
-    NO_ITEM_GIVEN_PICK = 'What should I pick? e.g. "pick apple"'
+    NO_ITEM_GIVEN_PICK = '<!!> What should I pick? e.g. "pick apple"'
     NOT_PICKABLE = ["I am afraid you can't take that", "with you, It belongs here!"]
     # (eat)
     BAD_FOOD = "would be delicious, unfortunately I don't have one"
-    NO_ITEM_GIVEN_EAT = 'I would like to eat, but what should I eat!? e.g. "eat apple"'
+    NO_ITEM_GIVEN_EAT = '<!!> I would like to eat, but what should I eat!? e.g. "eat apple"'
     NOT_EDIBLE = [
     ['They call me "Shark Teeth", but still this', 'is too hard for me to eat'],
     ['I might suffocate eating this', ''],
@@ -49,6 +50,10 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     ['I am not sure if this', 'is edible, better not try']
     ]
     SWALLOW_SYNONYMS = ['consume', 'devour', 'gulp down', 'eat', 'swallow', 'feast on']
+
+    # (drop)
+    NO_ITEM_GIVEN_DROP = '<!!> What should I drop? e.g. "drop apple"'
+    BAD_DROP = "You cann't get rid of something you dont actually own"
 
     def __init__(self, player, rooms):
         super().__init__()
@@ -132,6 +137,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Prints information about the current room
     def display_current_room(self):
         self.clear()
+        self.check_coins()
         self.display_player_info()
         # Displays room description
         current_room = ROOMS[self.location]
@@ -143,8 +149,20 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             print(line)
         self.reset_color()
         print()
-        # Displays all items on the ground
-        print(get_items_grounddesc(current_room))
+        # Displays all items for sale at the shop
+        if current_room[SHOP]:
+            ln = 20
+            print(self.PROMPT_SIGN + current_room[SHOPINTRO] + '\n')
+            for item_name in current_room[SHOP]:
+                item = ITEMS[item_name]
+                lnp = len(str(item[PRICE]))
+                print('{}{} {}{}{}({}$)'.format(BULLET, HIGHLIGHT_COLOR + item[NAME] + WHITE,
+                '-' * (ln - len(item[NAME])), C.Fore.YELLOW, ' ' * (3 - lnp), item[PRICE]))
+                self.reset_color()
+            print()
+        else:
+            # Displays all items on the ground
+            print(get_items_grounddesc(current_room))
         # Displays exits with colors
         for k, v in get_room_exits(current_room).items():
             print('{}{}{}| {}{}'.format(C.Fore.MAGENTA, k.upper(), (5 - len(k)) * ' ', C.Fore.CYAN, v))
@@ -340,7 +358,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         if arg.lower() in self.inventory:
             if ITEMS[arg.lower()][EDIBLE] == True:
                 # Generate a "You swallow-synonym that item" string
-                x = 'You {} that {}'.format(choice(self.SWALLOW_SYNONYMS), arg.lower())
+                x = 'You {} that {}{}{}'.format(choice(self.SWALLOW_SYNONYMS), HIGHLIGHT_COLOR,
+                arg.lower(), WHITE)
                 # Remove item from inventory then display room
                 self.inventory.remove(arg.lower())
                 self.display_current_room()
@@ -358,13 +377,40 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         elif arg.lower() not in self.inventory:
             if arg.lower() in ITEMS:
                 self.display_current_room()
-                x = ' {}{}{} {}'.format(HIGHLIGHT_COLOR, arg.lower(), C.Fore.RED, self.BAD_FOOD)
-                if use_an(arg.lower()):
-                    x = 'An' + x
-                else:
-                    x = 'A' + x
+                x = '{} {}{}{} {}'.format(use_an(arg.lower(), True), HIGHLIGHT_COLOR, arg.lower(), C.Fore.RED, self.BAD_FOOD)
                 self.error_msg(x)
             else:
+                self.display_current_room()
+                self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
+    
+    # Drops an item (Remove it from inventory, add it to current_room's GROUND)
+    def do_drop(self, arg):
+        current_room = ROOMS[self.location]
+        # If input is found in inventory
+        if arg.lower() in self.inventory:
+            # Prints that you dropped an item
+            x = 'You dropped ' + use_an(arg.lower()) + ' ' + HIGHLIGHT_COLOR + arg.lower() + WHITE
+            # Remove item from inventory then display room
+            if len(current_room[GROUND]) < GROUND_LIMIT:
+                self.inventory.remove(arg.lower())
+                current_room[GROUND].append(arg.lower())
+                self.display_current_room()
+                self.achieve_msg(x)
+            else:
+                self.display_current_room()
+                self.error_msg(self.ROOM_FULL)
+        # Empty input
+        elif not arg:
+            self.display_current_room()
+            self.error_msg(self.NO_ITEM_GIVEN_DROP)
+        # If item isn't in inventory check if such item exists and prompt accordingly
+        elif arg.lower() not in self.inventory:
+            if arg.lower() in ITEMS:
+                # I WOULD LIKE TO EAT THAT
+                self.display_current_room()
+                self.error_msg(self.BAD_DROP)
+            else:
+                # WTH IS THAT ITEM? NEVER HEARD OF IT
                 self.display_current_room()
                 self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
 

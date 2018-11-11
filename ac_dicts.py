@@ -12,7 +12,8 @@ initial_dmg = 0
 # Constants
 # This is the list of tags to be displayed in inventory
 INVENTORY_TAGS = ['food', 'weapon', 'armor'] 
-
+# Max number of items that can be found in a room
+GROUND_LIMIT = 5
 # Text constants
 BULLET = '  > '
 SEP = ' ● '
@@ -40,6 +41,7 @@ UP = 'up'
 DOWN = 'down'
 GROUND = 'ground'
 SHOP = 'shop'
+SHOPINTRO = 'shopintro'
 DIRECTIONS = [NORTH, SOUTH, EAST, WEST, UP, DOWN]
 # Item specific dict keys
 GROUNDDESC = 'grounddesc'
@@ -124,7 +126,7 @@ ROOMS = {
         UP: None,
         DOWN: None,
         GROUND: ['fountain', 'apple', 'bread', 'coin'],
-        SHOP: [],
+        SHOP: None,
     },
     'house_63': {
         NAME: 'House 63 (Ground)',
@@ -137,7 +139,7 @@ ROOMS = {
         UP: 'house_63_1',
         DOWN: None,
         GROUND: ['coin', 'coin'],
-        SHOP: [],
+        SHOP: None,
     },
     'house_63_1': {
         NAME: 'House 63 (Attic)',
@@ -150,7 +152,7 @@ ROOMS = {
         UP: None,
         DOWN: 'house_63',
         GROUND: ['dagger'],
-        SHOP: [],
+        SHOP: None,
     },
     'bakery': {
         NAME: 'Bakery',
@@ -163,7 +165,8 @@ ROOMS = {
         UP: None,
         DOWN: None,
         GROUND: [],
-        SHOP: ['bread', 'cake'],
+        SHOP: ['flatbread', 'bread', 'cake'],
+        SHOPINTRO: 'The bakery got some freshly baked pastry for sale\n# Have a look:',
     },
     'butchery': {
         NAME: 'Butchery',
@@ -177,6 +180,7 @@ ROOMS = {
         DOWN: None,
         GROUND: [],
         SHOP: ['beef'],
+        SHOPINTRO: 'The butcher got some cuts ready to go\n# Have a look:'
     },
 }
 
@@ -207,17 +211,37 @@ ITEMS = {
         SHORTDESC: 'a tasty vanilla cake',
         LONGDESC: 'This delicious treat was baked with love at the Grand Bakery, made from authentic vanilla and chocochips',
         PICKABLE: True,
-        PRICE: 20,
+        PRICE: 10,
         EDIBLE: True,
         TAG: 'food',
     },
     'bread': {
         NAME: 'Bread',
         GROUNDDESC: ['A loaf of', 'lies on ground'],
-        SHORTDESC: 'a warm bread loaf',
-        LONGDESC: 'This bread is full of carbohydrates it can easily satisfy your hunger',
+        SHORTDESC: 'a warm loaf of bread',
+        LONGDESC: 'A tasty bread loaf, baked until it puffed up, becoming soft and crunchy',
         PICKABLE: True,
-        PRICE: 5,
+        PRICE: 3,
+        EDIBLE: True,
+        TAG: 'food',
+    },
+    'flatbread': {
+        NAME: 'Flatbread',
+        GROUNDDESC: ['A piece of', 'lies on ground'],
+        SHORTDESC: 'a plain flatbread',
+        LONGDESC: 'Flatbread is made with flour, water and salt, before it is rolled into flattened dough',
+        PICKABLE: True,
+        PRICE: 1,
+        EDIBLE: True,
+        TAG: 'food',
+    },
+    'beef': {
+        NAME: 'Beef',
+        GROUNDDESC: ['A cut of', 'is thrown on ground'],
+        SHORTDESC: 'a cut of beef',
+        LONGDESC: 'A raw piece of meat, brought from the southern meadowns, it is tastier when cooked!',
+        PICKABLE: True,
+        PRICE: 25,
         EDIBLE: True,
         TAG: 'food',
     },
@@ -275,11 +299,16 @@ def banner(text, corner='+', border='-'):
     return '\n'.join(final_text)
 
 # True if text start with vowel and vice versa
-def use_an(text):
+def use_an(text, capitalize = False):
     if text[0] in 'aeiou':
-        return True
+        a = 'an'
     else:
-        return False
+        a = 'a'
+    if capitalize:
+        a = list(a)
+        a[0] = a[0].upper()
+        a = ''.join(a)
+    return a
 
 # EXTRACTOR FUNCTIONS
 def give_monster(specie, use_special_name=False):
