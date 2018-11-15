@@ -6,9 +6,9 @@ class Dungeon(cmd.Cmd):
 
     SCREEN_WIDTH = 80
 
-    location = 'bakery'
+    location = 'town_square'
     current_room = ROOMS[location]
-    coins = 0
+    coins = 100
     last_item_picked = None
 
     inventory = ['apple', 'beef', 'sausage', 'sausage']
@@ -54,6 +54,13 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # (drop)
     NO_ITEM_GIVEN_DROP = '<!!> What should I drop? e.g. "drop apple"'
     BAD_DROP = "You cann't get rid of something you dont actually own"
+    
+    # (buy)
+    NOT_SHOP = "There is nothing to buy from here, this isn't a shop"
+    BUY_ITEM = "You successfully purchased"
+    NO_MONEY = "You don't have enough coins for that item"
+    NOT_SOLD_HERE = "That item isn't for sale, apparently."
+    NO_ITEM_GIVEN_BUY = '<!!> What should I buy? e.g. "buy bread"'
 
     def __init__(self, player, rooms):
         super().__init__()
@@ -86,7 +93,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Pre/Post Loop functions
     def preloop(self):
-        self.check_coins()
+        # self.check_coins()
         self.display_current_room()
 
     # Utility functions
@@ -94,10 +101,12 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # based on the COIN_VALUE dictionary
     def check_coins(self):
         # Initializes coins
-        self.coins = 0
+        init_coin = 0
         my_coins = [x for x in self.inventory if ITEMS[x][TAG] == 'coins']
         for coin in my_coins:
-            self.coins += COIN_VALUE[coin]
+            init_coin += COIN_VALUE[coin]
+            self.inventory.remove(coin)
+        self.coins += init_coin
 
     @staticmethod
     def reset_color():
@@ -221,7 +230,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 if item_count == 1:
                     x = item[NAME]
                 elif item_count > 1:       
-                    x = '{} ({})'.format(item[NAME], item_count)
+                    x = '{}({})'.format(item[NAME], item_count)
                 # Highlights item name if it just got picked last turn
                 if item_name == self.last_item_picked:
                     x = C.Fore.YELLOW + x + WHITE
@@ -328,7 +337,6 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 # Add item to inventory after removing it from ground then display
                 current_room[GROUND].remove(item[NAME].lower())
                 self.inventory.append(item[NAME].lower())
-                self.check_coins()
                 self.last_item_picked = item[NAME].lower()
                 self.display_current_room()
                 self.achieve_msg('{} {} {}'.format(self.PICK_ITEM[0],
@@ -412,6 +420,34 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 # WTH IS THAT ITEM? NEVER HEARD OF IT
                 self.display_current_room()
                 self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
+    
+    def do_buy(self, arg):
+        current_room = ROOMS[self.location]
+        # THIS IS A SHOP AND YOU CAN INTERACT WITH IT
+        if current_room[SHOP]:
+            if arg.lower() in current_room[SHOP]:
+                price = ITEMS[arg.lower()][PRICE]
+                if self.coins >= price:
+                    self.coins -= price
+                    self.inventory.append(arg.lower())
+                    x = '{} {} for {}$'.format(self.BUY_ITEM,
+                    HIGHLIGHT_COLOR + arg.lower() + CYAN, C.Fore.YELLOW + str(price))
+                    self.last_item_picked = arg.lower()
+                    self.display_current_room()
+                    self.achieve_msg(x)
+                else:
+                    # YOU CANT BUY THIS ITEM, YOU GOT NO MONEY
+                    self.error_msg(self.NO_MONEY)
+            # Empty input
+            elif not arg:
+                self.error_msg(self.NO_ITEM_GIVEN_BUY)
+            # THE ITEM YOU WANT IS NOT FOR SALE
+            elif arg.lower() not in current_room[SHOP]:
+                self.error_msg(self.NOT_SOLD_HERE)
+        else:
+            # THIS ISNT A SHOP
+            self.display_current_room()
+            self.error_msg(self.NOT_SHOP)
 
 if __name__ == '__main__':
     me = player.Player('Bori', 10, WEAPONS[DAGGER])

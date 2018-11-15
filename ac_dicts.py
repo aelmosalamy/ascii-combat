@@ -48,6 +48,7 @@ GROUNDDESC = 'grounddesc'
 SHORTDESC = 'shortdesc'
 LONGDESC = 'longdesc'
 PICKABLE = 'pickable'
+DROPPABLE = 'droppable'
 PRICE = 'price'
 EDIBLE = 'edible'
 WEAPON = 'weapon'
@@ -126,7 +127,7 @@ ROOMS = {
         UP: None,
         DOWN: None,
         GROUND: ['fountain', 'apple', 'bread', 'coin'],
-        SHOP: None,
+        SHOP: [],
     },
     'house_63': {
         NAME: 'House 63 (Ground)',
@@ -139,7 +140,7 @@ ROOMS = {
         UP: 'house_63_1',
         DOWN: None,
         GROUND: ['coin', 'coin'],
-        SHOP: None,
+        SHOP: [],
     },
     'house_63_1': {
         NAME: 'House 63 (Attic)',
@@ -152,7 +153,7 @@ ROOMS = {
         UP: None,
         DOWN: 'house_63',
         GROUND: ['dagger'],
-        SHOP: None,
+        SHOP: [],
     },
     'bakery': {
         NAME: 'Bakery',
