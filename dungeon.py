@@ -8,7 +8,11 @@ class Dungeon(cmd.Cmd):
 
     location = 'town_square'
     current_room = ROOMS[location]
-    coins = 100
+
+    coins = 0
+    # Stores all coin items, so check_coins() can calculate difference between it
+    # and any coin item in inventory, Adding the difference to self.coins
+    old_coins_list = []
     last_item_picked = None
 
     inventory = ['apple', 'beef', 'sausage', 'sausage']
@@ -68,6 +72,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             C.init()
         self.reset_color()
         self.player = player
+        self.coin_hack(500)
         self.rooms = rooms
         self.intro = input(banner('. . . Welcome to ASCII Combat . . .\n. . . Press Enter to Continue . . .'))
         self.prompt = self.PROMPT_SIGN + self.PROMPT_MSG
@@ -93,20 +98,42 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Pre/Post Loop functions
     def preloop(self):
-        # self.check_coins()
         self.display_current_room()
+    
+    def postloop(self):
+        self.check_coins
 
     # Utility functions
     # Converts any 'money' item in inventory to the user's 'coin' counter
     # based on the COIN_VALUE dictionary
     def check_coins(self):
-        # Initializes coins
-        init_coin = 0
-        my_coins = [x for x in self.inventory if ITEMS[x][TAG] == 'coins']
-        for coin in my_coins:
-            init_coin += COIN_VALUE[coin]
-            self.inventory.remove(coin)
-        self.coins += init_coin
+        # Add all coin items in inventory to a temporary list
+        updated_coins = [x for x in self.inventory if ITEMS[x][TAG] == 'coins']
+        old_coins = list(self.old_coins_list)
+        if len(updated_coins) > len(old_coins):
+        # Checks for which coins are present in updated coins but
+        # not present in our old coins then add it to self.coins
+            for coin in updated_coins:
+                if coin in old_coins:
+                    old_coins.remove(coin)
+                else:
+                    self.coins += COIN_VALUE[coin]
+                    self.old_coins_list.append(coin)
+        elif len(updated_coins) < len(old_coins):
+        # Check for old coins that are NOT present in our
+        # updates coins and remove them from self.coins
+            for coin in old_coins:
+                if coin in updated_coins:
+                    updated_coins.remove(coin)
+                else:
+                    self.coins -= COIN_VALUE[coin]
+                    self.old_coins_list.remove(coin)
+
+    # Easy coin hack, just specify the amount xD
+    def coin_hack(self, amount):
+        coins = ['coin'] * amount
+        self.inventory += coins
+        self.check_coins()
 
     @staticmethod
     def reset_color():
@@ -308,8 +335,9 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Look at something (Display its LONGDESC)
     def do_look(self, arg):
         current_room = ROOMS[self.location]
-        # If input is one of the items on ground
-        if arg.lower() in (current_room[GROUND] or current_room[SHOP]):
+        # If input is one of the items in ground, shop, inventory
+        all_items = current_room[GROUND] + current_room[SHOP] + self.inventory
+        if arg.lower() in all_items:
             item = ITEMS[arg.lower()]
             self.display_current_room()
             self.achieve_msg(item[LONGDESC], wrap = True)
@@ -334,7 +362,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             item = ITEMS[arg.lower()]
             # Pick if item is PICKABLE otherwise ERRORRRRR!!!
             if item[PICKABLE]:
-                # Add item to inventory after removing it from ground then display
+                # Remove item from ground, Add to inventory, Display it to user
                 current_room[GROUND].remove(item[NAME].lower())
                 self.inventory.append(item[NAME].lower())
                 self.last_item_picked = item[NAME].lower()
@@ -343,6 +371,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 HIGHLIGHT_COLOR + item[NAME].lower() + CYAN,
                 self.PICK_ITEM[1]))
             else:
+                # Error: Item NOT pickable
                 self.display_current_room()
                 self.error_msg('{} {} {}'.format(self.NOT_PICKABLE[0],
                 HIGHLIGHT_COLOR + item[NAME].lower() + C.Fore.RED, self.NOT_PICKABLE[1]))
@@ -450,6 +479,6 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             self.error_msg(self.NOT_SHOP)
 
 if __name__ == '__main__':
-    me = player.Player('Bori', 10, WEAPONS[DAGGER])
+    me = player.Player('Bori', 10, WEAPONS[FIST])
     world = Dungeon(me, ROOMS)
     world.cmdloop()
