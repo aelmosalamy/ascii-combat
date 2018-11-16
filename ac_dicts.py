@@ -5,11 +5,14 @@ from monster import Monster
 from player import Player
 from random import choice
 import colorama as C
+import time, os, platform
 
 # Damage to be used for skills usually equals to player's current dmg
 initial_dmg = 0
 
 # Constants
+AC_SCREEN_WIDTH = 80
+AC_SCREEN_HEIGHT = 35
 # This is the list of tags to be displayed in inventory
 INVENTORY_TAGS = ['food', 'weapon', 'armor'] 
 # Max number of items that can be found in a room
@@ -24,7 +27,6 @@ CYAN = C.Fore.CYAN
 WHITE = C.Fore.WHITE
 BRIGHT = C.Style.BRIGHT
 DIM = C.Style.NORMAL
-
 # Weapon dict keys
 FIST = 'fist'
 DAGGER = 'dagger'
@@ -42,6 +44,7 @@ DOWN = 'down'
 GROUND = 'ground'
 SHOP = 'shop'
 SHOPINTRO = 'shopintro'
+COMBATENEMIES = 'combatenemies'
 DIRECTIONS = [NORTH, SOUTH, EAST, WEST, UP, DOWN]
 # Item specific dict keys
 GROUNDDESC = 'grounddesc'
@@ -127,6 +130,7 @@ ROOMS = {
         DOWN: None,
         GROUND: ['fountain', 'apple', 'bread', 'coin'],
         SHOP: [],
+        COMBATENEMIES: [],
     },
     'house_63': {
         NAME: 'House 63 (Ground)',
@@ -138,8 +142,9 @@ ROOMS = {
         WEST: None,
         UP: 'house_63_1',
         DOWN: None,
-        GROUND: ['coin', 'coin'],
+        GROUND: ['coin', 'apple'],
         SHOP: [],
+        COMBATENEMIES: [],
     },
     'house_63_1': {
         NAME: 'House 63 (Attic)',
@@ -153,6 +158,7 @@ ROOMS = {
         DOWN: 'house_63',
         GROUND: ['dagger'],
         SHOP: [],
+        COMBATENEMIES: ['spider', 'spider'],
     },
     'bakery': {
         NAME: 'Bakery',
@@ -167,6 +173,7 @@ ROOMS = {
         GROUND: [],
         SHOP: ['flatbread', 'bread', 'cake'],
         SHOPINTRO: 'The bakery got some freshly baked pastry for sale\n# Have a look:',
+        COMBATENEMIES: [],
     },
     'butchery': {
         NAME: 'Butchery',
@@ -180,7 +187,8 @@ ROOMS = {
         DOWN: None,
         GROUND: [],
         SHOP: ['beef', 'sausage'],
-        SHOPINTRO: 'The butcher got some cuts ready to go\n# Have a look:'
+        SHOPINTRO: 'The butcher got some cuts ready to go\n# Have a look:',
+        COMBATENEMIES: [],
     },
 }
 
@@ -290,6 +298,18 @@ def set_skills_dmg():
     SKILLS['ARROW_STORM']['dmg'] = 2
 
 # ASCII FUNCTIONS
+# Clears screen according to platform
+def clear():
+        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE, end='')
+        if platform.system() == 'Windows':
+            os.system('cls')
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            os.system('clear')
+
+# Returns an ANSI Sequence to change cursor position
+def pos(x, y):
+    return '\x1b[{};{}H'.format(int(y), int(x))
+
 # Displays a nice looking banner, multi-lines are supported
 def banner(text, corner='+', border='-'):
     max_length = 0
@@ -307,6 +327,34 @@ def banner(text, corner='+', border='-'):
         final_text.append('|{}{}|'.format(line, ' ' * dif))
     final_text.append(sides)
     return '\n'.join(final_text)
+
+# Returns an empty screen with text in the middle
+def center_screen(text):
+    final = ''
+    wspan = AC_SCREEN_WIDTH - 2
+    final += '+' + '-' * wspan + '+'
+    lines = text.split('\n')
+    no_of_newlines = AC_SCREEN_HEIGHT - (len(lines) + 2)
+    no_of_topnewlines = int(no_of_newlines / 2)
+    final += no_of_topnewlines * ('|' + ' ' * wspan + '|\n')
+    for line in lines:
+        lnt = int((wspan - len(line)) / 2)
+        final += '|' + ' ' * lnt + line + ' ' * lnt + '|' + '\n'
+    no_of_botnewlines = no_of_newlines - no_of_topnewlines
+    final += (no_of_botnewlines - 1) * ('|' + ' ' * wspan + '|\n')
+    final += '|' + ' ' * wspan + '|'
+    final += '+' + '-' * (AC_SCREEN_WIDTH-2) + '+'
+    return final
+
+# A transition between 2 scenes
+def transition(time_in_seconds=3, text='Loading', phases=5):
+    phase = 1
+    while phase < phases + 1:
+        clear()
+        x = text + ' .' * phase + '\n'
+        print(center_screen(x), end='')
+        time.sleep(time_in_seconds / phases)
+        phase += 1
 
 # True if text start with vowel and vice versa
 def use_an(text, capitalize = False):

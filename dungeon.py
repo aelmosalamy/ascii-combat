@@ -5,7 +5,7 @@ import colorama as C
 class Dungeon(cmd.Cmd):
 
     SCREEN_WIDTH = 80
-
+    
     location = 'town_square'
     current_room = ROOMS[location]
 
@@ -74,7 +74,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         self.player = player
         self.coin_hack(500)
         self.rooms = rooms
-        self.intro = input(banner('. . . Welcome to ASCII Combat . . .\n. . . Press Enter to Continue . . .'))
+        self.intro = input(center_screen(banner('''. . . Welcome to ASCII Combat . . .
+        . . . Press Enter to Continue . . .''')))
         self.prompt = self.PROMPT_SIGN + self.PROMPT_MSG
         self.INV_INTRO = "[{}'s {}]".format(self.player.name, self.INV_INTRO)
     
@@ -91,10 +92,6 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Removes the help method
     def do_help(self, arg):
         self.display_current_room()
-
-    # Controls termination of Combat
-    def postcmd(self, stop, line):
-        pass
 
     # Pre/Post Loop functions
     def preloop(self):
@@ -137,15 +134,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     @staticmethod
     def reset_color():
-        print(C.Back.BLACK + C.Fore.WHITE + C.Style.BRIGHT, end='')
-
-    @staticmethod
-    def clear():
-        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE, end='')
-        if platform.system() == 'Windows':
-            os.system('cls')
-        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
-            os.system('clear')
+        print(C.Back.BLACK + C.Fore.WHITE + C.Style.BRIGHT, end='') 
 
     # Displays an error prompt, supports multi-line prompts
     def error_msg(self, text, wrap = True):
@@ -172,7 +161,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Prints information about the current room
     def display_current_room(self):
-        self.clear()
+        clear()
         self.check_coins()
         self.display_player_info()
         # Displays room description
@@ -322,6 +311,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     def do_go(self, arg):
         # If input is an actual DIRECTION
         if arg.lower() in DIRECTIONS:
+            transition(5, text='Walking ' + arg.lower() + '!')
             self.go_new_location(arg)
         # Empty input
         elif not arg:
