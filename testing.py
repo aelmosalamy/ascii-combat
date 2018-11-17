@@ -1,15 +1,4 @@
-import ac_dicts
-import combat
-
-# Monster specie and names test
-def test1():
-    ms = []
-    for i in range(5):
-        m = ac_dicts.give_monster('wolf')
-        ms.append(m)
-
-    for i in ms:
-        print(i.name)    
+import dicts.weapons_skills as ws
 
 # Name strip test
 def test2():    
@@ -44,6 +33,9 @@ def func_return_test():
     myfunc()
     print(var)
 
+def imp_test():
+    x = ws.SKILLS['doubletrouble']
+    print(x)
 
 def dict_test():
     mydictionary = {'apple': 'red', 'banana': 'yellow'}
@@ -51,8 +43,7 @@ def dict_test():
     print(mydictionary['apple'])
 
 def main():
-    or_test()
-
+    imp_test()
 
 if __name__ == '__main__':
     main()

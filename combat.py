@@ -3,7 +3,6 @@ Instantiate this to create a Combat 'scene' containing a player and enemies
 both must be given, run the Combat.cmdloop() to start the scene
 '''
 from monster import Monster
-from ac_dicts import *
 import colorama as C
 import cmd, platform, os
 

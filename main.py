@@ -1,22 +1,17 @@
-from ac_dicts import *
-import player
-import combat
-import dungeon
-import os, platform
-
-SCREEN_WIDTH = 80
-SCREEN_HEIGHT = 35
-
-# Configuring CMD's window
-if platform.system() == 'Windows':
-    os.system('title ASCII Combat')
-    os.system('mode con: cols={} lines={}'.format(SCREEN_WIDTH, SCREEN_HEIGHT))
-elif platform.system() == 'Linux' or platform.system() == 'Darwin':
-    os.system('echo -n -e "\033]0;ASCII Combat\007"')
-    os.system('resize -s {} {}'.format(SCREEN_HEIGHT, SCREEN_WIDTH))
+'''
+This is just "main" module that launchs our game
+and start the cmdloop()
+'''
+from dicts.weapons_skills import *
+from dicts.rooms import *
+from dicts.utils import *
+from dicts.monsters import give_monster
+import combat, dungeon, sys
 
 def main():
-    me = player.Player('Bori', 10, WEAPONS[DAGGER], SKILLS['DOUBLE_TROUBLE'])
+    sys.path.append(os.getcwd())
+    set_console_size()
+    me = Player('Bori', 10, WEAPONS[DAGGER], SKILLS[ARROWSTORM])
     enemies = [give_monster('wolf') for i in range(3)]
 
     # Comment/Uncomment game/world depending on which one you want to try

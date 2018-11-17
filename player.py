@@ -2,22 +2,22 @@
 A Player class, every player got: HP, DMG, WEAPON and a SKILL
 '''
 from monster import Monster
-import ac_dicts
 import colorama as C
+from dicts import weapons_skills as ws
+from dicts.weapons_skills import *
 
 class Player(Monster):
     def __init__(self, name, hp, weapon, skill_type=None):
         # weapon[1] is the dmg
         super().__init__(name, hp, weapon[1])
-        # Sets 'initial_dmg' and changes skills dmg accordingly
-        ac_dicts.initial_dmg = self.dmg
-        ac_dicts.set_skills_dmg()
+        # Sets skills dmg
+        ws.set_skills_dmg(self.dmg)
         # weapon[0] is name and weapon[2] is hit verb
         self.weapon = weapon[0]
         self.weapon_verb = weapon[2]
         self.enemies = []
         if not skill_type:
-            self.skill_type = ac_dicts.SKILLS['NONE']
+            self.skill_type = ws.SKILLS['NONE']
         else:
             self.skill_type = skill_type
         self.skill = 0
@@ -42,12 +42,13 @@ class Player(Monster):
         if self.skill < self.max_skill:
             self.skill += 1
 
+    # Skill functions
     def double_trouble(self, enemy):
-        enemy.hp -= ac_dicts.SKILLS['DOUBLE_TROUBLE']['dmg']
+        enemy.hp -= ws.SKILLS[DOUBLETROUBLE]['dmg']
         enemy.update_data()
 
     def arrow_storm(self, enemies):
         for enemy in enemies:
-            enemy.hp -= ac_dicts.SKILLS['ARROW_STORM']['dmg']
+            enemy.hp -= ws.SKILLS[ARROWSTORM]['dmg']
             enemy.update_data()
             

@@ -1,5 +1,12 @@
-from ac_dicts import *
+'''
+This contains everything regarding the dungeon system, navigation, inventory
+eating, looking, dropping and shop system, by far, the largest module in AC
+'''
+from dicts.utils import *
+from dicts.rooms import *
+from dicts.items import *
 import player, combat, cmd, platform, os, textwrap
+from random import choice
 import colorama as C
 
 class Dungeon(cmd.Cmd):
