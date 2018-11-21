@@ -16,8 +16,8 @@ WEAPONS = {
 
 # Sets skill dmg according to a dmg multiplier
 def set_skills_dmg(init_dmg):
-    SKILLS[DOUBLETROUBLE]['dmg'] = init_dmg * 2
-    SKILLS[ARROWSTORM]['dmg'] = 2
+    SKILLS[DOUBLETROUBLE][DMG] = init_dmg * 2
+    SKILLS[ARROWSTORM][DMG] = 2
 
 # > Stores skills usable by player all skills got a:
 # - NAME (Just a name)
@@ -32,16 +32,16 @@ SKILLS = {
         },
         DOUBLETROUBLE: {
             NAME    : 'Double Trouble',
-            'function': Player.double_trouble,
-            'message' : 'twice in quick succession',
-            'dmg'     : None,
-            'ismulti' : False,
+            FUNCTION: Player.double_trouble,
+            MESSAGE : 'twice in quick succession',
+            DMG     : None,
+            ISMULTI : False,
         },
         ARROWSTORM: {
-            'name'    : 'Arrow Storm',
-            'function': Player.arrow_storm,
-            'message' : 'You throw deadly arrows on all enemies',
-            'dmg'     : None,
-            'ismulti' : True,
+            NAME    : 'Arrow Storm',
+            FUNCTION: Player.arrow_storm,
+            MESSAGE : 'You throw deadly arrows on all enemies',
+            DMG     : None,
+            ISMULTI : True,
         },
     }

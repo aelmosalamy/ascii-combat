@@ -73,6 +73,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     NOT_SOLD_HERE = "That item isn't for sale, apparently."
     NO_ITEM_GIVEN_BUY = '<!!> What should I buy? e.g. "buy bread"'
 
+    gospeed = 5
+
     def __init__(self, player, rooms):
         super().__init__()
         if platform.system() == 'Windows':
@@ -81,8 +83,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         self.player = player
         self.coin_hack(500)
         self.rooms = rooms
-        self.intro = input(center_screen(banner('''. . . Welcome to ASCII Combat . . .
-        . . . Press Enter to Continue . . .''')))
+        self.intro = input(center_screen(banner('''. . . <Welcome to ASCII Combat . . .
+. . . Press Enter to Continue> . . .''')))
         self.prompt = self.PROMPT_SIGN + self.PROMPT_MSG
         self.INV_INTRO = "[{}'s {}]".format(self.player.name, self.INV_INTRO)
     
@@ -234,6 +236,11 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         else:
             print('  ' + self.EMPTY_INV)
 
+    # Displays warning for user, with 2 options: fight or flight
+    def display_combat(self, target_room):
+        clear()
+        print('On your way to ' + target_room[NAME] + ', some monsters cut into your way')
+
     # Sorts items in a list of items (particularly self.inventory) according
     # to tags and prints them
     def sort_inventory_items(self, item_names):
@@ -293,16 +300,28 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         pass
 
     # Follows a given direction to move from current location to a new location
-    def go_new_location(self, input):
+    def go_new_location(self, inp):
         current_room = ROOMS[self.location]
         # Checks all DIRECTIONS, comparing them to user input
         for dir in DIRECTIONS:
-            # If the DESTINATION is available, move to it
-            if current_room[dir] and dir == input.lower():
-                self.location = current_room[dir]
-                self.display_current_room()
+            # If the DESTINATION is available and matches user input, move to it
+            if current_room[dir] and dir == inp:
+                target_room_id = current_room[dir]
+                # Finds approperiate wording for the load screen!
+                if inp == UP: load_text='Climbing'
+                elif inp == DOWN: load_text='Descending'
+                else: load_text = 'Walking'
+                # If target room contains enemies, load to combat,
+                if ROOMS[target_room_id][ENEMIES]:
+                    transition(self.gospeed, text=load_text + ' ' + inp + '!')
+                    self.display_combat(ROOMS[target_room_id])
+                # Elif room is peaceful, move and display that room
+                else:
+                    transition(self.gospeed, text=load_text + ' ' + inp + '!')
+                    self.location = current_room[dir]
+                    self.display_current_room()
             # If the DESTINATION is empty
-            elif dir == input.lower() and not current_room[dir]:
+            elif dir == inp and not current_room[dir]:
                 self.display_current_room()
                 # Customized messages for CLIMBING/DESCENDING no destination
                 if dir == UP:
@@ -318,8 +337,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     def do_go(self, arg):
         # If input is an actual DIRECTION
         if arg.lower() in DIRECTIONS:
-            transition(5, text='Walking ' + arg.lower() + '!')
-            self.go_new_location(arg)
+            # Go to new location, If enemies present ask for fight/flight
+            self.go_new_location(arg.lower())
         # Empty input
         elif not arg:
             self.display_current_room()
@@ -328,6 +347,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         elif arg.lower() not in DIRECTIONS:
             self.display_current_room()
             self.error_msg(self.BAD_DIR)
+        
     
     # Look at something (Display its LONGDESC)
     def do_look(self, arg):

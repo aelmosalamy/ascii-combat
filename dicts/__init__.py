@@ -22,6 +22,10 @@ FIST = 'fist'
 DAGGER = 'dagger'
 SWORD = 'sword'
 # Skill dict keys
+FUNCTION = 'function'
+DMG = 'dmg'
+MESSAGE = 'message'
+ISMULTI = 'ismulti'
 DOUBLETROUBLE = 'doubletrouble'
 ARROWSTORM = 'arrowstorm'
 # Rooms/items dict keys

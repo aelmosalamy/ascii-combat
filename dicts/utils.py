@@ -2,7 +2,7 @@
 Contains various QoL functions which are used all over the game,
 any text-based game would need such functions to satisfy the repetitive
 need for simple stuff like: determining use "a" or "an" before item name
-or placing some sentence inside a box, etc.. that is why "utils" exist
+or placing some sentence inside a box, etc.. that is what "utils.py" do
 '''
 from dicts import *
 import time, os, platform
@@ -53,6 +53,7 @@ def banner(text, corner='+', border='-'):
     return '\n'.join(final_text)
 
 # Returns an empty screen with text in the middle
+# Too much rambling if you ask me for a stupid centered text with a border
 def center_screen(text):
     final = ''
     wspan = AC_SCREEN_WIDTH - 2
