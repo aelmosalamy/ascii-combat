@@ -34,7 +34,7 @@ def get_items_shortdesc(item_names):
     return text
 
 # coin items and their prices (Must use the exact name as their counterpart in ITEMS)
-# A sack contains 10x items, its value depend on the contained item's value
+# A sack contains 10x items, its value depends on the contained item's value
 COIN_VALUE = {
     'coin': 1,
     'gold coin': 7,
@@ -42,7 +42,7 @@ COIN_VALUE = {
     'gold coins sack': 70,
 }
 
-# GROUNDDESC is splitted into two, because later the item will be
+# GROUNDDESC is split into two, because later the item will be
 # colored and insered between them
 ITEMS = {
     'apple': {
@@ -88,7 +88,7 @@ ITEMS = {
         NAME: 'Beef',
         GROUNDDESC: ['A cut of', 'is thrown on ground'],
         SHORTDESC: 'a cut of beef',
-        LONGDESC: 'A raw piece of meat, brought from the southern meadowns, it is tastier when cooked!',
+        LONGDESC: 'A raw piece of meat, brought from the southern meadows, it is tastier when cooked!',
         PICKABLE: True,
         PRICE: 35,
         EDIBLE: True,
@@ -98,7 +98,7 @@ ITEMS = {
         NAME: 'Sausage',
         GROUNDDESC: ['A fresh', 'lies on the floor'],
         SHORTDESC: 'a fresh sausage',
-        LONGDESC: 'A cylinderical piece of meat, delicious and perfect for BBQ!',
+        LONGDESC: 'A cylindrical piece of meat, delicious and perfect for BBQ!',
         PICKABLE: True,
         PRICE: 20,
         EDIBLE: True,
@@ -109,6 +109,15 @@ ITEMS = {
         GROUNDDESC: ['A white', 'is streaming water'],
         SHORTDESC: 'a fabulous, marble fountain',
         LONGDESC: 'This beautiful sculpture is emanating water, attracting various kinds of birds.',
+        PICKABLE: False,
+        EDIBLE: False,
+        TAG: 'decor',
+    },
+    'evergreen': {
+        NAME: 'Evergreen',
+        GROUNDDESC: ['A vibrant', 'confidently rises from the earth'],
+        SHORTDESC: 'a fragrant evergreen, complete with bristles',
+        LONGDESC: 'Deep green bristles erupt in a spire around this proud tree, fixed firmly in the ground.',
         PICKABLE: False,
         EDIBLE: False,
         TAG: 'decor',
