@@ -22,6 +22,7 @@ SEP = ' ● '
 FIST = 'fist'
 DAGGER = 'dagger'
 SWORD = 'sword'
+BOW = 'bow'
 # Skill dict keys
 FUNCTION = 'function'
 DMG = 'dmg'
