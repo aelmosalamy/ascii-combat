@@ -13,6 +13,10 @@ PRICE (If sold in a shop), WEAPON (If used as weapon)
 from dicts import *
 from dicts.weapons_skills import WEAPONS
 
+# Returns a list of the names of items with a specific tag assigned to them
+def get_tag_items(item_names, tag):
+    return [x for x in item_names if ITEMS[x][TAG] == tag]
+
 # Returns items GROUNDDESC as bullet points
 def get_items_grounddesc(room, item_look=None):
     text = ''
@@ -121,6 +125,16 @@ ITEMS = {
         PICKABLE: True,
         EDIBLE: False,
         WEAPON: WEAPONS[DAGGER],
+        TAG: 'weapon',
+    },
+    'sword': {
+        NAME: 'Sword',
+        GROUNDDESC: ['A long', 'is thrown on the ground'],
+        SHORTDESC: 'a long, iron sword',
+        LONGDESC: 'This sword is ancient. despite being forged from iron, it will slice through your enemies with ease, ',
+        PICKABLE: True,
+        EDIBLE: False,
+        WEAPON: WEAPONS[SWORD],
         TAG: 'weapon',
     },
     'coin': {

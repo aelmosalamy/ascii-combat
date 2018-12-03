@@ -39,7 +39,7 @@ ROOMS = {
         ENEMIES: [],
     },
     'house_63': {
-        NAME: 'House 63 (Ground)',
+        NAME: "House 63's Main Floor",
         USERDESC: 'You are inside an old, deserted house. You see a dark staircase upwards',
         DESC: 'This house looks like it is going to collapse',
         NORTH: None,
@@ -53,7 +53,7 @@ ROOMS = {
         ENEMIES: [],
     },
     'house_63_1': {
-        NAME: 'House 63 (Attic)',
+        NAME: "House 63's Attic",
         USERDESC: 'You are in a dark, gloomy attic, There is a staircase downwards',
         DESC: 'Everything is untouched, covered in dust.',
         NORTH: None,

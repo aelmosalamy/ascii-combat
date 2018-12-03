@@ -19,7 +19,7 @@ def set_console_size():
         os.system('mode con: cols={} lines={}'.format(AC_SCREEN_WIDTH, AC_SCREEN_HEIGHT))
     elif platform.system() == 'Linux' or platform.system() == 'Darwin':
         os.system('echo -n -e "\033]0;ASCII Combat\007"')
-        os.system('resize -s {} {}'.format(AC_SCREEN_HEIGHT, AC_SCREEN_WIDTH))
+        os.system('echo "\033[8;{};{}t"'.format(AC_SCREEN_HEIGHT, AC_SCREEN_WIDTH))
 
 # ASCII functions >
 # Clears screen according to platform

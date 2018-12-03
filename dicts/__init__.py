@@ -8,6 +8,7 @@ import colorama as C
 HIGHLIGHT_COLOR = C.Fore.MAGENTA
 CYAN = C.Fore.CYAN
 WHITE = C.Fore.WHITE
+RED = C.Fore.RED
 BRIGHT = C.Style.BRIGHT
 DIM = C.Style.NORMAL
 # This is the list of tags to be displayed in inventory

@@ -5,7 +5,7 @@ eating, looking, dropping and shop system, by far, the largest module in AC
 from dicts.utils import *
 from dicts.rooms import *
 from dicts.items import *
-import player, combat, cmd, platform, os, textwrap
+import player, combat, cmd, platform, os, textwrap, time
 from random import choice
 import colorama as C
 
@@ -13,7 +13,7 @@ class Dungeon(cmd.Cmd):
 
     SCREEN_WIDTH = 80
     
-    location = 'town_square'
+    location = 'house_63'
     current_room = ROOMS[location]
 
     coins = 0
@@ -22,7 +22,7 @@ class Dungeon(cmd.Cmd):
     old_coins_list = []
     last_item_picked = None
 
-    inventory = ['apple', 'beef', 'sausage', 'sausage']
+    inventory = ['apple', 'beef', 'sword', 'dagger']
     PROMPT_SIGN = '# '
 
     # String constants used for user interaction, They are supposed to be written
@@ -73,7 +73,12 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     NOT_SOLD_HERE = "That item isn't for sale, apparently."
     NO_ITEM_GIVEN_BUY = '<!!> What should I buy? e.g. "buy bread"'
 
-    gospeed = 5
+    # combat
+    MONSTER_CUT = ['A bunch of creepy monsters cut your path!', 'You take a step back, gazing at the overlooking beasts!',
+    'Few evil-looking creatures gaze at you mockingly', 'Creepy, spooky enemies block your way',
+    ]
+
+    go_loadspeed = 2
 
     def __init__(self, player, rooms):
         super().__init__()
@@ -236,10 +241,54 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         else:
             print('  ' + self.EMPTY_INV)
 
-    # Displays warning for user, with 2 options: fight or flight
-    def display_combat(self, target_room):
+    # Dramatically prompts user to accept fight, returns True if accepted False if retreat chosen
+    def ask_fight_or_flight(self, target_room, dir):
+        
+        time.sleep(2)
         clear()
-        print('On your way to ' + target_room[NAME] + ', some monsters cut into your way')
+        print(RED + center_screen('While going ' + dir + ', to ' + target_room[NAME] + ' . . .'), end='')
+        time.sleep(3)
+
+        clear()
+        print(RED + center_screen(choice(self.MONSTER_CUT) + ' . . .'), end='')
+        time.sleep(4)
+
+        clear()
+        print(RED + center_screen("You don't know how many are there, but you know . . ."), end='')
+        time.sleep(2)
+        
+        clear()
+        print(RED + center_screen("That if you are going to fight, It will be you. And you only . . ."), end='')
+        time.sleep(3)
+
+        clear()
+        print(WHITE + center_screen("Will you face your enemies, or . . run away?"), end='')
+        time.sleep(4)
+
+        print(WHITE)
+        while True:
+            clear()
+            answer = input(banner("Fight or Flight!") + '\n\n' + self.PROMPT_SIGN + 'Do you accept this deadly fight [y/n]?\n' + BULLET)
+            # Fight, enter combat
+            if answer.lower() == 'y':
+                # Accepted fight, Choosing weapons/skill and more!
+                clear()
+                print(C.Fore.RED + "> PREPARING FOR FIGHT <")
+                print('=' * 23)
+                my_weapons = get_tag_items(self.inventory, 'weapon')
+                if my_weapons:
+                    # Selecting weapon to use
+                    print(self.PROMPT_SIGN + ' Pick your weapon:')
+                    for weapon in my_weapons:
+                        print(weapon)
+                else:
+                    # No weapons
+                    print(self.PROMPT_SIGN + "Your fist is your only weapon!")
+        
+                return True
+            # Flight, return to previous room
+            elif answer.lower() == 'n':
+                return False
 
     # Sorts items in a list of items (particularly self.inventory) according
     # to tags and prints them
@@ -297,6 +346,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Prints an ASCII map of all rooms
     def graph_rooms(self):
+        # TO BE IMPLEMENTED
         pass
 
     # Follows a given direction to move from current location to a new location
@@ -311,13 +361,19 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 if inp == UP: load_text='Climbing'
                 elif inp == DOWN: load_text='Descending'
                 else: load_text = 'Walking'
-                # If target room contains enemies, load to combat,
+                # Loader between screens
+                transition(self.go_loadspeed, text=load_text + ' ' + inp + '!')
+                # If target room contains enemies, prompt for combat
                 if ROOMS[target_room_id][ENEMIES]:
-                    transition(self.gospeed, text=load_text + ' ' + inp + '!')
-                    self.display_combat(ROOMS[target_room_id])
-                # Elif room is peaceful, move and display that room
+                    # If fight
+                    if self.ask_fight_or_flight(ROOMS[target_room_id], dir):
+                        pass
+                    # If user chose retreat
+                    else:
+                        transition(text='Retreating cowardly to ' + current_room[NAME])
+                        self.display_current_room()
+                # Elif room is peaceful, change location and display room
                 else:
-                    transition(self.gospeed, text=load_text + ' ' + inp + '!')
                     self.location = current_room[dir]
                     self.display_current_room()
             # If the DESTINATION is empty
@@ -331,6 +387,10 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 # N/S/E/W
                 else:
                     self.error_msg('{} {}'.format(self.EMPTY_DIR, dir.upper()))
+
+    # Generates a new dungeon structure using existing rooms
+    def generate_dungeon(self, room_list):
+        pass
 
     # Cmd commands
     # Navigate in a specific direction
