@@ -13,7 +13,8 @@ A simple CLI text adventure game, created for learning purposes.
 * To try the game, download the .zip file, extract it and run "main.py".
 
 ### Game Modules
-* The game uses two modules: Cmd (to run the a generic command-line interface with several useful features) and colorama (an amazing ANSI sequence text colorizer).
+
+* The game mainly uses two modules: Cmd (to run the a generic command-line interface with several useful features) and colorama (an amazing ANSI sequence text colorizer).
 
 ### Pull Requests
 
