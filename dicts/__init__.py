@@ -17,7 +17,7 @@ INVENTORY_TAGS = ['food', 'weapon', 'armor']
 GROUND_LIMIT = 5
 # Text constants
 BULLET = '  > '
-SEP = ' ● '
+SEP = ' * ' # A fancy separator with no use --> ●
 # Weapon dict keys
 FIST = 'fist'
 DAGGER = 'dagger'
@@ -44,6 +44,7 @@ GROUND = 'ground'
 SHOP = 'shop'
 SHOPINTRO = 'shopintro'
 ENEMIES = 'enemies'
+SEEN = 'seen'
 DIRECTIONS = [NORTH, SOUTH, EAST, WEST, UP, DOWN]
 # Item specific dict keys
 GROUNDDESC = 'grounddesc'

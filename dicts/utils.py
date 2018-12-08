@@ -5,7 +5,8 @@ need for simple stuff like: determining use "a" or "an" before item name
 or placing some sentence inside a box, etc.. that is what "utils.py" do
 '''
 from dicts import *
-import time, os, platform
+from time import sleep
+import os, platform
 
 # Stores console's window size at launch
 AC_SCREEN_WIDTH = 80
@@ -78,7 +79,7 @@ def transition(time_in_seconds=3, text='Loading', phases=5):
         clear()
         x = text + ' .' * phase + '\n'
         print(center_screen(x), end='')
-        time.sleep(time_in_seconds / phases)
+        sleep(time_in_seconds / phases)
         phase += 1
 
 # True if text start with vowel and vice versa
@@ -93,3 +94,10 @@ def use_an(text, capitalize = False):
         a = ''.join(a)
     return a
     
+# Simulates typing (I found it is a great way to make the player
+# read all the boring text in the game!)
+def typewriter(text, speed=1):
+    delay = 0.035 * speed
+    for char in text:
+        print(char, end='', flush=True)
+        sleep(delay)

@@ -9,8 +9,12 @@ A simple CLI text adventure game, created for learning purposes.
 
 ### Usage instructions
 
-* This game uses Python's Cmd module along with colorama, an amazing ANSI sequence text colorizer
-* To try the game, download the .zip file, extract it and run "main.py" - which basically sets terminal color and title before running "main.py", keep in mind this - should I call it a game? - isn't complete and is currently under development.
+* This game uses Python 3 only. Using Python 2.x will get you a non-ASCII character syntax error!
+* To try the game, download the .zip file, extract it and run "main.py".
+
+### Game Modules
+
+* The game mainly uses two modules: Cmd (to run the a generic command-line interface with several useful features) and colorama (an amazing ANSI sequence text colorizer).
 
 ### Pull Requests
 

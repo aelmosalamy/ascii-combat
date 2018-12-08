@@ -5,7 +5,8 @@ eating, looking, dropping and shop system, by far, the largest module in AC
 from dicts.utils import *
 from dicts.rooms import *
 from dicts.items import *
-import player, combat, cmd, platform, os, textwrap, time
+import player, combat, cmd, platform, os, textwrap
+from time import sleep
 from random import choice
 import colorama as C
 
@@ -13,10 +14,6 @@ class Dungeon(cmd.Cmd):
 
     SCREEN_WIDTH = 80
     
-    location = 'house_63'
-    current_room = ROOMS[location]
-
-    coins = 0
     # Stores all coin items, so check_coins() can calculate difference between it
     # and any coin item in inventory, Adding the difference to self.coins
     old_coins_list = []
@@ -82,11 +79,16 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     def __init__(self, player, rooms):
         super().__init__()
+        # Windows requires init to use ANSI Sequences
         if platform.system() == 'Windows':
             C.init()
+        # Initialising all variables
+        self.location = 'town_square'
+        self.current_room = ROOMS[self.location]
+        self.coins = 0
         self.reset_color()
         self.player = player
-        self.coin_hack(500)
+        self.coin_hack(500) # Give me some money!
         self.rooms = rooms
         self.intro = input(center_screen(banner('''. . . <Welcome to ASCII Combat . . .
 . . . Press Enter to Continue> . . .''')))
@@ -112,7 +114,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         self.display_current_room()
     
     def postloop(self):
-        self.check_coins
+        pass
 
     # Utility functions
     # Converts any 'money' item in inventory to the user's 'coin' counter
@@ -178,16 +180,22 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         clear()
         self.check_coins()
         self.display_player_info()
-        # Displays room description
         current_room = ROOMS[self.location]
-        print(C.Fore.YELLOW, end='')
-        print(banner(current_room[NAME], border='~'))
+        # Displays current room name
+        print(C.Fore.YELLOW + banner(current_room[NAME], border='~'))
         self.reset_color()
-        room_desc = self.PROMPT_SIGN + current_room[USERDESC] + '. ' + current_room[DESC]
-        for line in textwrap.wrap(room_desc, self.SCREEN_WIDTH):
-            print(line)
+        # Displays room's USERDESC + DESC
+        room_desc = self.PROMPT_SIGN + current_room[USERDESC] + ' ' + current_room[DESC]
+        # Different experience if first time entry
+        if current_room[SEEN]:
+            print('\n'.join(textwrap.wrap(room_desc, self.SCREEN_WIDTH)))
+        else:
+            # Slowly writes room description
+            typewriter('\n'.join(textwrap.wrap(room_desc, self.SCREEN_WIDTH)))
+            # Sets the destination as SEEN
+            self.room_seen(self.location)
         self.reset_color()
-        print()
+        print('\n')
         # Displays all items for sale at the shop
         if current_room[SHOP]:
             ln = 20
@@ -244,26 +252,26 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Dramatically prompts user to accept fight, returns True if accepted False if retreat chosen
     def ask_fight_or_flight(self, target_room, dir):
         
-        time.sleep(2)
+        sleep(2)
         clear()
         print(RED + center_screen('While going ' + dir + ', to ' + target_room[NAME] + ' . . .'), end='')
-        time.sleep(3)
+        sleep(3)
 
         clear()
         print(RED + center_screen(choice(self.MONSTER_CUT) + ' . . .'), end='')
-        time.sleep(4)
+        sleep(4)
 
         clear()
         print(RED + center_screen("You don't know how many are there, but you know . . ."), end='')
-        time.sleep(2)
+        sleep(2)
         
         clear()
         print(RED + center_screen("That if you are going to fight, It will be you. And you only . . ."), end='')
-        time.sleep(3)
+        sleep(3)
 
         clear()
         print(WHITE + center_screen("Will you face your enemies, or . . run away?"), end='')
-        time.sleep(4)
+        sleep(4)
 
         print(WHITE)
         while True:
@@ -293,11 +301,12 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Sorts items in a list of items (particularly self.inventory) according
     # to tags and prints them
     def sort_inventory_items(self, item_names):
-        l = 9 # Length of 'Name  | ' to be used as indent
-        displayed_items = []
-        food_tag   = CYAN + 'Food   | '
-        weapon_tag = CYAN + 'Weapons| '
-        random_tag  = CYAN + 'Random | '
+        l = 7 # Length of 'Name  | ' to be used as indent
+        # Tracks displayed items, so they are not repeated
+        displayed_items = [] 
+        # key is a lowercase tag (for comparison with item tags)
+        # value is a decorated text for display
+        tags = {tag:tag[0].upper() + tag[1:] + (l - len(tag)) * ' ' + '| ' for tag in INVENTORY_TAGS}
         for item_name in item_names:
         # If that item got already displayed dont print second ocurrences
             if item_name in displayed_items: 
@@ -313,41 +322,30 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 # Highlights item name if it just got picked last turn
                 if item_name == self.last_item_picked:
                     x = C.Fore.YELLOW + x + WHITE
-                if item[TAG] == 'food':
-                    food_tag += WHITE + x + CYAN + SEP + WHITE
-                elif item[TAG] == 'weapon':
-                    weapon_tag += WHITE + x + CYAN + SEP + WHITE
-                elif item[TAG] == 'random':
-                    random_tag += WHITE + x + CYAN + SEP + WHITE
-                # Our item is displayed with count, add it to displayed_items
+                # Display the item if it is in inventory tags
+                if item[TAG] in INVENTORY_TAGS:
+                    tags[item[TAG]] += WHITE + x + CYAN + SEP + WHITE
                 displayed_items.append(item_name)
         # Support for big inventories with textwrap
         # This to indent every single line except the first line which is printed
         # independently, since it contains the title 'Food  |', then other lines are indented
-        # FOOD LINE
-        _food = textwrap.wrap(food_tag, self.SCREEN_WIDTH + 43)
-        print(_food[0])
-        _food.remove(_food[0])
-        for line in _food:
-            print(' ' * l + line)
-        # WEAPON LINE
-        _weapon = textwrap.wrap(weapon_tag, self.SCREEN_WIDTH + 43)
-        print(_weapon[0])
-        _weapon.remove(_weapon[0])
-        for line in _weapon:
-            print(' ' * l + line)
-        # random LINE
-        _random = textwrap.wrap(random_tag, self.SCREEN_WIDTH + 43)
-        print(_random[0])
-        _random.remove(_random[0])
-        for line in _random:
-            print(' ' * l + line)      
+        for tag in tags.values():
+            _tag = textwrap.wrap(tag, self.SCREEN_WIDTH + 43)
+            print(HIGHLIGHT_COLOR + _tag[0])
+            _tag.remove(_tag[0])
+            for line in _tag:
+                print(' ' * (l + 2) + line) 
         print()
 
     # Prints an ASCII map of all rooms
     def graph_rooms(self):
         # TO BE IMPLEMENTED
         pass
+
+    # Checks a room as seen
+    @staticmethod
+    def room_seen(room_id):
+        ROOMS[room_id][SEEN] = True
 
     # Follows a given direction to move from current location to a new location
     def go_new_location(self, inp):
