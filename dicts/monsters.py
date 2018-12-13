@@ -15,21 +15,31 @@ in a dictionary, multi-word names must be separated
 with a "dash (-) to avoid a bug when using variated names"
 '''
 MONSTER_SPECIES = {
-    #Specie         |  NAME  | HP |  DMG  |  ACTION |
+    #Specie         |  NAME  | HP |  DMG  |  VERB  |
     'chicken':      ['Chicken', 1, 1,      'pinched'],
     'archer':       ['Archer', 1, 2,          'shot'],
     'spider':       ['Spider', 2, 1,           'hit'],
     'scorpion':     ['Scorpion', 1, 3,       'stung'],
     'guard':        ['Guard', 2, 2,        'punched'],
-    'wolf':         ['Wolf', 3, 1,            'bit'],
-    'werewolf':     ['Werewolf', 3, 2,        'bit'],
-    'alligator':    ['Alligator', 3, 3,       'bit'],
+    'wolf':         ['Wolf', 3, 1,             'bit'],
+    'werewolf':     ['Werewolf', 3, 2,         'bit'],
+    'alligator':    ['Alligator', 3, 3,        'bit'],
     'bear':         ['Bear', 4, 2,      'slashed at'],
     'ogre':         ['Ogre', 5, 3,         'slammed'],
+    'knight':       ['Knight', 6, 3,        'jabbed'],
     'pbag':         ['Punching-Bag', 10, 0,       ''],
     'spbag':        ['Super-Punching-Bag', 999, 0,''],
 }
 
+# Different enemy arrangements
+COMBAT_LEVELS = [
+    ['spider', 'spider'],
+    ['wolf', 'wolf'],
+    ['guard', 'archer', 'wolf'],
+    ['guard', 'guard', 'guard'],
+    ['wolf', 'werewolf', 'wolf'],
+    ['ogre', 'wolf'],
+]
 # Given a specie name, this function returns a monster object based on the
 # MONSTER_SPECIES dict
 def give_monster(specie, use_special_name=False):

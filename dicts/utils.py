@@ -53,6 +53,11 @@ def banner(text, corner='+', border='-'):
     final_text.append(sides)
     return '\n'.join(final_text)
 
+# Prints a headline
+def headline(text, char='='):
+    print(text)
+    print(len(text) * char)
+
 # Returns an empty screen with text in the middle
 # Too much rambling if you ask me for a stupid centered text with a border
 def center_screen(text):
@@ -97,7 +102,7 @@ def use_an(text, capitalize = False):
 # Simulates typing (I found it is a great way to make the player
 # read all the boring text in the game!)
 def typewriter(text, speed=1):
-    delay = 0.035 * speed
+    delay = 0.045 * speed
     for char in text:
         print(char, end='', flush=True)
         sleep(delay)

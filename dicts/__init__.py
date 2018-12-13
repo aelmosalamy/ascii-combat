@@ -18,11 +18,14 @@ GROUND_LIMIT = 5
 # Text constants
 BULLET = '  > '
 SEP = ' * ' # A fancy separator with no use --> ●
+FILLBAR = '█'
+EMPTYBAR = '░'
 # Weapon dict keys
 FIST = 'fist'
 DAGGER = 'dagger'
 SWORD = 'sword'
 BOW = 'bow'
+VERB = 'verb'
 # Skill dict keys
 FUNCTION = 'function'
 DMG = 'dmg'
@@ -54,4 +57,5 @@ PICKABLE = 'pickable'
 PRICE = 'price'
 EDIBLE = 'edible'
 WEAPON = 'weapon'
+SKILL = 'skill'
 TAG = 'tag' # Tags can be food, weapon, random, decor

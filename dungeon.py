@@ -5,6 +5,7 @@ eating, looking, dropping and shop system, by far, the largest module in AC
 from dicts.utils import *
 from dicts.rooms import *
 from dicts.items import *
+from dicts.monsters import *
 import player, combat, cmd, platform, os, textwrap
 from time import sleep
 from random import choice
@@ -83,7 +84,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         if platform.system() == 'Windows':
             C.init()
         # Initialising all variables
-        self.location = 'town_square'
+        self.location = 'house_63'
         self.current_room = ROOMS[self.location]
         self.coins = 0
         self.reset_color()
@@ -190,7 +191,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         if current_room[SEEN]:
             print('\n'.join(textwrap.wrap(room_desc, self.SCREEN_WIDTH)))
         else:
-            # Slowly writes room description
+            # Slowly types the room description
             typewriter('\n'.join(textwrap.wrap(room_desc, self.SCREEN_WIDTH)))
             # Sets the destination as SEEN
             self.room_seen(self.location)
@@ -223,14 +224,14 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         # seen by the user) so this is a simple workaround
         EXTENSION = 1 # This controls how long the left handle for the banner is
         x = 5 + len("[{}] [HP] {}/{}[Weapon] {}[Skill] {}[Coins] {}$".format(p.name, p.hp, p.max_hp,
-        p.weapon, p.skill_type[NAME], self.coins))
+        p.weapon[NAME], p.skill_type[NAME], self.coins))
         # Printing top border
         print('\{}┌{}┐   /'.format(' ' * (EXTENSION + 1), '-' * x))
         # Printing colored stats
         c_user_stats = "{}[{}] {}[HP] {}/{} {}[Weapon] {} {}[Skill] {} {}[Coins] {}$".format(
         C.Fore.CYAN, p.name,
         C.Fore.GREEN, p.hp, p.max_hp, 
-        C.Fore.RED, p.weapon, 
+        C.Fore.RED, p.weapon[NAME], 
         C.Fore.MAGENTA, p.skill_type[NAME],
         C.Fore.YELLOW, self.coins)
         print(' \{}| {}{} {}'.format('_' * EXTENSION, c_user_stats, C.Fore.WHITE, '|__/'))
@@ -251,27 +252,22 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # Dramatically prompts user to accept fight, returns True if accepted False if retreat chosen
     def ask_fight_or_flight(self, target_room, dir):
-        
-        sleep(2)
+        sleep(1)
         clear()
         print(RED + center_screen('While going ' + dir + ', to ' + target_room[NAME] + ' . . .'), end='')
-        sleep(3)
+        sleep(2)
 
         clear()
         print(RED + center_screen(choice(self.MONSTER_CUT) + ' . . .'), end='')
-        sleep(4)
-
-        clear()
-        print(RED + center_screen("You don't know how many are there, but you know . . ."), end='')
         sleep(2)
-        
-        clear()
-        print(RED + center_screen("That if you are going to fight, It will be you. And you only . . ."), end='')
-        sleep(3)
 
         clear()
-        print(WHITE + center_screen("Will you face your enemies, or . . run away?"), end='')
-        sleep(4)
+        print(RED + center_screen("Lonely as you are, you shall face your enemies . . ."), end='')
+        sleep(2)
+
+        clear()
+        print(RED + center_screen("Will you face them with courage? or . . run away?"), end='')
+        sleep(2)
 
         print(WHITE)
         while True:
@@ -281,18 +277,26 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             if answer.lower() == 'y':
                 # Accepted fight, Choosing weapons/skill and more!
                 clear()
-                print(C.Fore.RED + "> PREPARING FOR FIGHT <")
-                print('=' * 23)
-                my_weapons = get_tag_items(self.inventory, 'weapon')
+                print(RED, end=''); headline('# Prepare for fight!')
+                print(WHITE, end='')
+                weapons = [WEAPONS[x] for x in get_tag_items(self.inventory, 'weapon')]
+                my_weapons = {i+1: weapons[i][NAME] for i in range(len(weapons))}
                 if my_weapons:
                     # Selecting weapon to use
                     print(self.PROMPT_SIGN + ' Pick your weapon:')
-                    for weapon in my_weapons:
-                        print(weapon)
+                    for k, v in my_weapons.items():
+                        print('{}| {}'.format(k, v))
+                    while True:
+                        x = input('> ')
+                        if int(x) in my_weapons.keys():
+                            self.player.weapon = WEAPONS[my_weapons[int(x)].lower()]
+                            return True
+                        else:
+                            pass
                 else:
                     # No weapons
                     print(self.PROMPT_SIGN + "Your fist is your only weapon!")
-        
+
                 return True
             # Flight, return to previous room
             elif answer.lower() == 'n':
@@ -365,7 +369,11 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 if ROOMS[target_room_id][ENEMIES]:
                     # If fight
                     if self.ask_fight_or_flight(ROOMS[target_room_id], dir):
-                        pass
+                        enemies = [give_monster(x) for x in ROOMS[target_room_id][ENEMIES]]
+                        fight = combat.Combat(player.Player(self.player.name, 10, self.player.weapon), enemies)
+                        fight.cmdloop()
+                        self.location = target_room_id
+                        self.display_current_room()
                     # If user chose retreat
                     else:
                         transition(text='Retreating cowardly to ' + current_room[NAME])

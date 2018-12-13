@@ -3,12 +3,15 @@ Instantiate this to create a Combat 'scene' containing a player and enemies
 both must be given, run the Combat.cmdloop() to start the scene
 '''
 from monster import Monster
+from dicts.utils import *
 import colorama as C
 import cmd, platform, os
+from time import sleep
+from random import randint
 
 class Combat(cmd.Cmd):
     STRINGS = {
-    'intro'        : 'You started a fight, Enemies are staring viciously at you!\nPress Enter to start . . .',
+    'intro'        : 'You choose to fight. Enemies are staring viciously at you!\nPress Enter to start . . .',
     'win'          : 'VICTORY, You defeated all enemies!\nPress Enter to Exit . . .',
     'lose'         : 'DEFEAT, You got beaten by enemies!\nPress Enter to Exit . . .',
     'syntax_error' : 'Oops! I dont understand',
@@ -35,8 +38,8 @@ class Combat(cmd.Cmd):
         # Color settings
         if platform.system() == 'Windows':
             C.init()
-        print(C.Fore.WHITE + C.Back.BLACK + C.Style.BRIGHT, end='')
-        self.intro = input(self.STRINGS['intro'])
+        self.reset_color()
+        self.intro = input(center_screen(self.STRINGS['intro']))
         self.prompt = '{}{}'.format(self.PROMPT_SIGN, self.STRINGS['prompt'])
         # user/enemies variables
         self.user = user
@@ -84,6 +87,13 @@ class Combat(cmd.Cmd):
     # Pre/Post Loop functions
     def preloop(self):
         self.display()
+   
+    def postloop(self):
+        pass
+
+    @staticmethod
+    def reset_color():
+        print(C.Style.RESET_ALL + C.Back.BLACK + C.Fore.WHITE + C.Style.BRIGHT, end='')
 
     # ENEMIES, PLAYER, COMBAT STUFF
     # Creates a dictionary that store Enemies and their corresponding names
@@ -175,29 +185,31 @@ class Combat(cmd.Cmd):
 
     # UTILITY FUNCTIONS   
     # Displays the interface: All Enemies and user status
-    def display(self, clear = True):
-        if clear:
-            self.clear()
-        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE)
+    def display(self, clr = True):
+        self.reset_color()
+        if clr:
+            clear()
         self.user.show()
         for enemy in self.enemies:
             if enemy.alive:
                 print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.RED + enemy.show())
             else:
                 print(C.Style.DIM + C.Back.BLACK + C.Fore.RED + enemy.show())
-        print(self.user_attack_msg) 
-        print(self.enemies_attack_msg)
+                self.reset_color()
+        print()
+        # Reveals events slowly
+        if self.user_attack_msg:
+            for line in self.user_attack_msg.split('\n'):
+                sleep(0.5)
+                print(line)
+        if self.enemies_attack_msg:
+            for line in self.enemies_attack_msg.split('\n'):
+                sleep(0.75)
+                print(line)
+        self.user_attack_msg = ''
+        self.enemies_attack_msg = ''
+        # print(self.enemies_attack_msg)
         print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE)
-         
-    # Clears the terminal using the approperiate subshell command
-    # for each terminal
-    @staticmethod
-    def clear():
-        print(C.Style.BRIGHT + C.Back.BLACK + C.Fore.WHITE, end='')
-        if platform.system() == 'Windows':
-            os.system('cls')
-        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
-            os.system('clear')
     
     # A wrapper for printing a RED error message
     def error_msg(self, text):

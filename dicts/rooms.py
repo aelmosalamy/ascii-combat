@@ -32,8 +32,8 @@ def get_room_exits(room):
 ROOMS = {
     'town_square': {
         NAME: 'Town Square',
-        USERDESC: 'You are in the middle of the square, you feel lost in the crowd of people.',
-        DESC: 'The square is large with a fountain in the middle, narrow, paved roadss lead into all directions.',
+        USERDESC: 'You are in the middle of a square, you feel lost in the crowd of people.',
+        DESC: 'The square is large with a fountain in the middle, narrow, paved roads lead into all directions.',
         NORTH: 'courtyard',
         SOUTH: 'butchery',
         EAST: 'bakery',
@@ -46,7 +46,7 @@ ROOMS = {
         SEEN: False,
     },
     'house_63': {
-        NAME: 'House 63 (Ground)',
+        NAME: "House 63's Entrance",
         USERDESC: 'You are inside an old, deserted house. You see a dark staircase leading upwards.',
         DESC: 'This house looks like it is going to collapse.',
         NORTH: None,
@@ -61,7 +61,7 @@ ROOMS = {
         SEEN: False,
     },
     'house_63_1': {
-        NAME: 'House 63 (Attic)',
+        NAME: "House 63's Attic",
         USERDESC: 'You are in a dark, gloomy attic, there is a staircase leading downward.',
         DESC: 'Everything is untouched, covered in dust.',
         NORTH: None,
@@ -72,7 +72,7 @@ ROOMS = {
         DOWN: 'house_63',
         GROUND: ['dagger'],
         SHOP: [],
-        ENEMIES: ['spider', 'spider'],
+        ENEMIES: ['spider', 'spider', 'wolf'],
         SEEN: False,
     },
     'bakery': {

@@ -11,7 +11,7 @@ PRICE (If sold in a shop), WEAPON (If used as weapon)
 
 # Imports package namespace which contain all constants
 from dicts import *
-from dicts.weapons_skills import WEAPONS
+from dicts.weapons_skills import WEAPONS, SKILLS
 
 # Returns a list of the names of items with a specific tag assigned to them
 def get_tag_items(item_names, tag):
@@ -23,9 +23,14 @@ def get_items_grounddesc(room, item_look=None):
     for item_name in room[GROUND]:
         item = ITEMS[item_name]
         # Add item GROUNDDESC to be displayed
-        text += '{} {} {}'.format(BULLET + item[GROUNDDESC][0],
-        HIGHLIGHT_COLOR + item[NAME].lower() + WHITE,
-        item[GROUNDDESC][1] + '\n')
+        # Here it inserts 
+        if type(item[GROUNDDESC]) is list:
+            text += '{} {} {}'.format(BULLET + item[GROUNDDESC][0],
+            HIGHLIGHT_COLOR + item[NAME].lower() + WHITE,
+            item[GROUNDDESC][1] + '\n')
+        elif type(item[GROUNDDESC]) is str:
+            text +=  BULLET + item[GROUNDDESC] + '\n'
+
     return text
 
 # Returns items SHORTDESC as bullet points
@@ -144,6 +149,7 @@ ITEMS = {
         PICKABLE: True,
         EDIBLE: False,
         WEAPON: WEAPONS[SWORD],
+        SKILL: SKILLS[DOUBLETROUBLE],
         TAG: 'weapon',
     },
     'coin': {

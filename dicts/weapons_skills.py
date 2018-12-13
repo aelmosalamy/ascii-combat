@@ -4,15 +4,34 @@ Stores weapons and skills
 # Imports package namespace which contain all ants
 from dicts import *
 from player import Player
-# Stores weapons usable by player, all weapons have a:
-# Weapon[0] is the weapon name, Weapon[1] is the weapon dmg
-# Weapon[2] is the verb written when atk is used
+# Stores weapons usable by player, each weapon is associated with
+# a specific skill that synergies with that weapon
 WEAPONS = {
-#                NAME ----> DMG --> VERB
-    FIST   :  ['Fist',   1,   'punched'],
-    DAGGER :  ['Dagger', 2,   'stabbed'],
-    SWORD  :  ['Sword',  3, 'sliced at'],
-    BOW    :  ['Bow',    3,      'shot'],
+#                NAME ----> DMG --> VERB --> SKILL
+    FIST   :  {
+        NAME: 'Fist',
+        DMG:  1,
+        VERB: 'punched',
+        SKILL: DOUBLETROUBLE,
+        },
+    DAGGER :  {
+        NAME:'Dagger',
+        DMG: 2,
+        VERB: 'stabbed',
+        SKILL: DOUBLETROUBLE,
+        },
+    SWORD  :  {
+        NAME: 'Sword',
+        DMG: 3,
+        VERB: 'sliced at',
+        SKILL: DOUBLETROUBLE,
+        },
+    BOW    :  {
+        NAME: 'Bow',
+        DMG: 3,
+        VERB: 'fired an arrow at',
+        SKILL: ARROWSTORM,
+        },
 }
 
 # Sets skill dmg according to a dmg multiplier
@@ -35,14 +54,14 @@ SKILLS = {
             NAME    : 'Double Trouble',
             FUNCTION: Player.double_trouble,
             MESSAGE : 'twice in quick succession',
-            DMG     : None,
+            DMG     : None, # x * 2
             ISMULTI : False,
         },
         ARROWSTORM: {
             NAME    : 'Arrow Storm',
             FUNCTION: Player.arrow_storm,
             MESSAGE : 'You fire deadly arrows at all enemies',
-            DMG     : None,
+            DMG     : None, # 2
             ISMULTI : True,
         },
     }

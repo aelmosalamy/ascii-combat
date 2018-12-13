@@ -45,7 +45,6 @@ class Monster:
                 total += '\n' + self.line('bot')
                 return total
             else:
-                total = ''
                 n = '|' + self.name
                 total += self.line('top') + '\n'
                 total += n + ((self.length - len(n)) * ' ') + ' |'
@@ -53,7 +52,7 @@ class Monster:
                 return total
         elif size == 'min':
             if self.alive:
-                n = '|' + self.name + ' |HP: ' + str(1 * self.hp) + ' |DMG: ' + str(self.dmg)
+                n = '|' + self.name + ' |HP: ' + '█' * self.hp + (self.max_hp - self.hp) * '░' + ' ' + str(self.hp) + ' |DMG: ' + str(self.dmg)
                 self.length = len(n)
                 total += self.line('top') + '\n'
                 total += n +((self.length - len(n)) * ' ') + ' |'

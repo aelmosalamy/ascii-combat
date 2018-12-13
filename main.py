@@ -11,8 +11,8 @@ import combat, dungeon, sys
 def main():
     sys.path.append(os.getcwd())
     set_console_size()
-    me = Player('Bori', 10, WEAPONS[DAGGER], SKILLS[ARROWSTORM])
-    enemies = [give_monster('wolf') for i in range(3)]
+    me = Player('Bori', 10, WEAPONS[BOW])
+    enemies = [give_monster('ogre') for i in range(1)] + [give_monster('wolf')]
 
     # Comment/Uncomment game/world depending on which one you want to try
     # world is the dungeon system, game is the combat system, they are not
