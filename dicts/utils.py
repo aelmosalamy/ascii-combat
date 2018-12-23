@@ -69,8 +69,9 @@ def center_screen(text):
     no_of_topnewlines = int(no_of_newlines / 2)
     final += no_of_topnewlines * ('|' + ' ' * wspan + '|\n')
     for line in lines:
-        lnt = int((wspan - len(line)) / 2)
-        final += '|' + ' ' * lnt + line + ' ' * lnt + '|' + '\n'
+        lnt = (wspan - len(line)) // 2
+        final += '|' + ' ' * lnt + line + ' ' * lnt
+        final += '|\n'  if len(line) % 2 == 0 else ' |\n'
     no_of_botnewlines = no_of_newlines - no_of_topnewlines
     final += (no_of_botnewlines - 1) * ('|' + ' ' * wspan + '|\n')
     final += '|' + ' ' * wspan + '|'
