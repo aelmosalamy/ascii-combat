@@ -1,3 +1,4 @@
+[![Run on Repl.it](https://repl.it/badge/github/aelmosalamy/ascii-combat)](https://repl.it/github/aelmosalamy/ascii-combat)
 ## ASCII Combat
 A simple CLI text adventure game, created for learning purposes.
 
