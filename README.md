@@ -12,9 +12,11 @@ A simple CLI text adventure game, created for learning purposes.
 * Enemies distributed over dungeon entrances, explore further by beating them in a role-based combat system.
 
 ### Usage instructions
-
-* This game uses Python 3 only. Using Python 2.x will get you a non-ASCII character syntax error!
-* To try the game, download the .zip file, extract it and run "main.py".
+#### Note: This game uses Python 3 ONLY. Using Python 2 will not work!
+- Get sources either by downloading `.zip` file and extracting it
+- Or by cloning the master branch `git clone https://github.com/aelmosalamy/ascii-combat`
+- To setup: run `pip3 install colorama` or `pipenv install`
+- To play: run `python3 main.py`
 
 ### Game Modules
 
