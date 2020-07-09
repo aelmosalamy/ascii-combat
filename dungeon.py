@@ -47,7 +47,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     NO_ITEM_GIVEN = '<!!> What should I look at? e.g. "look apple"'
     PICK_ITEM = ['You stuff that', 'in your can-hold-everything pocket']
     # (pick)
-    NO_ITEM_GIVEN_PICK = '<!!> What should I pick? e.g. "pick apple"'
+    NO_ITEM_GIVEN_PICK = '<!!> What should I pick? e.g. "pick apple, pick apple coin, pick all"'
     NOT_PICKABLE = ["I am afraid you can't take that", "with you, It belongs here!"]
     # (eat)
     BAD_FOOD = "would be delicious, unfortunately I don't have one"
@@ -437,40 +437,58 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                 self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
             
     
-    # Pick an item (Remove it from ROOM[GROUND] add it to self.inventory)
-    def do_pick(self, arg):
-        current_room = ROOMS[self.location]
-        # If input is one of the items on ground
-        if arg.lower() in current_room[GROUND]:
-            item = ITEMS[arg.lower()]
-            # Pick if item is PICKABLE otherwise ERRORRRRR!!!
-            if item[PICKABLE]:
-                # Remove item from ground, Add to inventory, Display it to user
-                current_room[GROUND].remove(item[NAME].lower())
-                self.inventory.append(item[NAME].lower())
-                self.last_item_picked = item[NAME].lower()
-                self.display_current_room()
-                self.achieve_msg('{} {} {}'.format(self.PICK_ITEM[0],
-                HIGHLIGHT_COLOR + item[NAME].lower() + CYAN,
-                self.PICK_ITEM[1]))
-            else:
-                # Error: Item NOT pickable
-                self.display_current_room()
-                self.error_msg('{} {} {}'.format(self.NOT_PICKABLE[0],
-                HIGHLIGHT_COLOR + item[NAME].lower() + C.Fore.RED, self.NOT_PICKABLE[1]))
-        # Empty input
-        elif not arg:
-            self.display_current_room()
-            self.error_msg(self.NO_ITEM_GIVEN_PICK)
-        elif arg.lower() not in current_room[GROUND]:
-            if arg.lower() in ITEMS:
-                self.display_current_room()
-                self.error_msg(self.BAD_ITEM)
-            else:
-                self.display_current_room()
-                self.error_msg('"{}"{}'.format(arg, self.UNKNOWN_ITEM))
+    # Pick item(s) (Remove it from ROOM[GROUND] add it to self.inventory)
+    def do_pick(self, *args: str) -> None:
+        """Pick item(s) with in a current room
+            arg - item names or 'all' for pciking all items available
 
-    
+            Ex. 1) pick all -> pick all items
+                2) pick apple -> pick apple
+                3) pick apple coin -> pick apple and coin
+        """
+        def _do_pick_single_item(item_name: str) -> None:
+            """ Inner function for picking up one item """
+            if item_name in current_room[GROUND]:
+                item = ITEMS[item_name]
+                # Pick if item is PICKABLE
+                if item[PICKABLE]:
+                    # Remove item from ground, add to inventory, and display it to user
+                    current_room[GROUND].remove(item[NAME].lower())
+                    self.inventory.append(item[NAME].lower())
+                    self.last_item_picked = item[NAME].lower()
+                    self.display_current_room()
+                    self.achieve_msg('{} {} {}'.format(self.PICK_ITEM[0],
+                    HIGHLIGHT_COLOR + item[NAME].lower() + CYAN,
+                    self.PICK_ITEM[1]))
+                else:
+                    # Error: Item is NOT pickable
+                    self.display_current_room()
+                    self.error_msg('{} {} {}'.format(self.NOT_PICKABLE[0],
+                    HIGHLIGHT_COLOR + item[NAME].lower() + C.Fore.RED, self.NOT_PICKABLE[1]))
+            # Empty input
+            elif not item_name:
+                self.display_current_room()
+                self.error_msg(self.NO_ITEM_GIVEN_PICK)
+            elif item_name not in current_room[GROUND]:
+                if item_name in ITEMS:
+                    self.display_current_room()
+                    self.error_msg(self.BAD_ITEM)
+                else:
+                    self.display_current_room()
+                    self.error_msg('"{}"{}'.format(item_name, self.UNKNOWN_ITEM))
+
+        # Pick item(s) procedures
+        current_room = ROOMS[self.location]
+        if args[0] == 'all':
+            all_items = [item for item in current_room[GROUND]]
+        else:
+            all_items = args[0].split(' ')
+
+        for item in all_items:
+            _do_pick_single_item(item)
+
+        return None
+
     # Eat an item (Remove it from invetory)
     def do_eat(self, arg):
         # If input is found in inventory
