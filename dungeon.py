@@ -401,6 +401,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     # Cmd commands
     # Navigate in a specific direction
     def do_go(self, arg):
+        arg = DIRECTIONS_ALIASES.get(arg.lower(),arg)
         # If input is an actual DIRECTION
         if arg.lower() in DIRECTIONS:
             # Go to new location, If enemies present ask for fight/flight
