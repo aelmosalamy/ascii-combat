@@ -49,6 +49,14 @@ SHOPINTRO = 'shopintro'
 ENEMIES = 'enemies'
 SEEN = 'seen'
 DIRECTIONS = [NORTH, SOUTH, EAST, WEST, UP, DOWN]
+DIRECTIONS_ALIASES = {
+    "n": NORTH,
+    "s": SOUTH,
+    "e": EAST,
+    "w": WEST,
+    "u": UP,
+    "d": DOWN
+}
 # Item specific dict keys
 GROUNDDESC = 'grounddesc'
 SHORTDESC = 'shortdesc'
