@@ -31,7 +31,7 @@ class Dungeon(cmd.Cmd):
     INV_INTRO = 'Pockets'
     EMPTY_INV = 'Your pockets are empty . . .\n'
     UNKNOWN_CMD = 'What do you mean by that?'
-    PROMPT_MSG = 'Would you like to: <go>? <look>? <pick>? <drop>? <eat>?\n> '
+    PROMPT_MSG = 'Would you like to: <go>? <look>? <pick>? <drop>? <eat>? <buy>?\n> '
     ROOM_FULL = "This room can't take more, find somewhere else to drop your stuff!"
     # general
     BAD_ITEM = "I can't see that item anywhere in here!"
