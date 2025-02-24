@@ -31,7 +31,7 @@ class Dungeon(cmd.Cmd):
     INV_INTRO = 'Pockets'
     EMPTY_INV = 'Your pockets are empty . . .\n'
     UNKNOWN_CMD = 'What do you mean by that?'
-    PROMPT_MSG = 'Would you like to: <go>? <look>? <pick>? <drop>? <eat>?\n> '
+    PROMPT_MSG = 'Would you like to: <go>? <look>? <pick>? <drop>? <eat>? <buy>?\n> '
     ROOM_FULL = "This room can't take more, find somewhere else to drop your stuff!"
     # general
     BAD_ITEM = "I can't see that item anywhere in here!"
@@ -62,7 +62,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # (drop)
     NO_ITEM_GIVEN_DROP = '<!!> What should I drop? e.g. "drop apple"'
-    BAD_DROP = "You cann't get rid of something you dont actually own"
+    BAD_DROP = "You can't get rid of something you dont actually own"
     
     # (buy)
     NOT_SHOP = "There is nothing to buy from here, this isn't a shop"
@@ -93,6 +93,10 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         self.rooms = rooms
         self.intro = input(center_screen(banner('''. . . <Welcome to ASCII Combat . . .
 . . . Press Enter to Continue> . . .''')))
+        #Simple name input. If it is blank, the player's name will be set to "Bori"
+        self.player.name = input('Enter your name (default: Bori):')
+        if not self.player.name:
+            self.player.name = "Bori"
         self.prompt = self.PROMPT_SIGN + self.PROMPT_MSG
         self.INV_INTRO = "[{}'s {}]".format(self.player.name, self.INV_INTRO)
     
