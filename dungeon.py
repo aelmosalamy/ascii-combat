@@ -93,6 +93,10 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         self.rooms = rooms
         self.intro = input(center_screen(banner('''. . . <Welcome to ASCII Combat . . .
 . . . Press Enter to Continue> . . .''')))
+        #Simple name input. If it is blank, the player's name will be set to "Bori"
+        self.player.name = input('Enter your name (default: Bori):')
+        if not self.player.name:
+            self.player.name = "Bori"
         self.prompt = self.PROMPT_SIGN + self.PROMPT_MSG
         self.INV_INTRO = "[{}'s {}]".format(self.player.name, self.INV_INTRO)
     
