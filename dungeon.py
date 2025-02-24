@@ -62,7 +62,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
 
     # (drop)
     NO_ITEM_GIVEN_DROP = '<!!> What should I drop? e.g. "drop apple"'
-    BAD_DROP = "You cann't get rid of something you dont actually own"
+    BAD_DROP = "You can't get rid of something you dont actually own"
     
     # (buy)
     NOT_SHOP = "There is nothing to buy from here, this isn't a shop"
