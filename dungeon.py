@@ -59,6 +59,8 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
     ['I am not sure if this', 'is edible, better not try']
     ]
     SWALLOW_SYNONYMS = ['consume', 'devour', 'gulp down', 'eat', 'swallow', 'feast on']
+    FULL_HP = "You are already at full health!"
+    HP_RECOVERED = "You recovered {} HP! Current HP: {}/{}"
 
     # (drop)
     NO_ITEM_GIVEN_DROP = '<!!> What should I drop? e.g. "drop apple"'
@@ -292,11 +294,14 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                         print('{}| {}'.format(k, v))
                     while True:
                         x = input('> ')
-                        if int(x) in my_weapons.keys():
-                            self.player.weapon = WEAPONS[my_weapons[int(x)].lower()]
-                            return True
-                        else:
-                            pass
+                        try:
+                            if int(x) in my_weapons.keys():
+                                self.player.weapon = WEAPONS[my_weapons[int(x)].lower()]
+                                return True
+                            else:
+                                print(self.PROMPT_SIGN + 'Invalid choice! Pick a number from the list.')
+                        except ValueError:
+                            print(self.PROMPT_SIGN + 'Please enter a valid number!')
                 else:
                     # No weapons
                     print(self.PROMPT_SIGN + "Your fist is your only weapon!")
@@ -374,7 +379,7 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
                     # If fight
                     if self.ask_fight_or_flight(ROOMS[target_room_id], dir):
                         enemies = [give_monster(x) for x in ROOMS[target_room_id][ENEMIES]]
-                        fight = combat.Combat(player.Player(self.player.name, 10, self.player.weapon), enemies)
+                        fight = combat.Combat(self.player,enemies)
                         fight.cmdloop()
                         self.location = target_room_id
                         self.display_current_room()
@@ -499,12 +504,25 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
         # If input is found in inventory
         if arg.lower() in self.inventory:
             if ITEMS[arg.lower()][EDIBLE] == True:
+                # Examine if HP is full
+                if self.player.hp >= self.player.max_hp:
+                    self.display_current_room()
+                    self.error_msg(self.FULL_HP)
+                    return
+                #Get the HP recovery value from food
+                heal_amount = ITEMS[arg.lower()].get(HEAL, 1)
+                # Restore HP (not exceeding maximum)
+                old_hp = self.player.hp
+                self.player.hp = min(self.player.hp + heal_amount, self.player.max_hp)
+                actual_heal = self.player.hp - old_hp
                 # Generate a "You swallow-synonym that item" string
                 x = 'You {} that {}{}{}'.format(choice(self.SWALLOW_SYNONYMS), HIGHLIGHT_COLOR,
                 arg.lower(), WHITE)
+                # Add HP recovery message
+                if actual_heal > 0:
+                    x += ' {}(+{} HP)'.format(C.Fore.GREEN, actual_heal)
                 # Remove item from inventory then display room
                 self.inventory.remove(arg.lower())
-                self.display_current_room()
                 self.achieve_msg(x)
             else:
                 # Prints a funny prompt if item is not edible
@@ -583,6 +601,15 @@ Check these, perhaps? NORTH/SOUTH/EAST/WEST or UP/DOWN'''
             # THIS ISNT A SHOP
             self.display_current_room()
             self.error_msg(self.NOT_SHOP)
+
+    def game_over(self):
+        clear()
+        print(C.Back.RED + C.Fore.WHITE + center_screen('YOU DIED!'), end='')
+        print(C.Back.BLACK)
+        print(C.Fore.RED + center_screen('Your adventure has come to an end...'))
+        print(C.Fore.WHITE)
+        input('Press Enter to exit...')
+        return True 
 
 if __name__ == '__main__':
     me = player.Player('Bori', 10, WEAPONS[FIST])

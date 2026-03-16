@@ -62,6 +62,7 @@ ITEMS = {
         PICKABLE: True,
         EDIBLE: True,
         TAG: 'food',
+        HEAL: 2,
     },
     'cake': {
         NAME: 'Cake',
@@ -72,6 +73,7 @@ ITEMS = {
         PRICE: 10,
         EDIBLE: True,
         TAG: 'food',
+        HEAL: 2,
     },
     'bread': {
         NAME: 'Bread',
@@ -82,6 +84,7 @@ ITEMS = {
         PRICE: 3,
         EDIBLE: True,
         TAG: 'food',
+        HEAL: 3,
     },
     'flatbread': {
         NAME: 'Flatbread',
@@ -92,6 +95,7 @@ ITEMS = {
         PRICE: 1,
         EDIBLE: True,
         TAG: 'food',
+        HEAL: 3,
     },
     'beef': {
         NAME: 'Beef',
@@ -102,6 +106,7 @@ ITEMS = {
         PRICE: 35,
         EDIBLE: True,
         TAG: 'food',
+        HEAL: 5,
     },
     'sausage': {
         NAME: 'Sausage',
@@ -112,6 +117,7 @@ ITEMS = {
         PRICE: 20,
         EDIBLE: True,
         TAG: 'food',
+        HEAL: 4,
     },
     'fountain': {
         NAME: 'Fountain',

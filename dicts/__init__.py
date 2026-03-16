@@ -67,3 +67,4 @@ EDIBLE = 'edible'
 WEAPON = 'weapon'
 SKILL = 'skill'
 TAG = 'tag' # Tags can be food, weapon, random, decor
+HEAL='heal' # HP recovery
